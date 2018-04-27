@@ -20,40 +20,79 @@ LEFT_THRESHOLD = 20
 RIGHT_THRESHOLD = 20
 CENTER_LINE = WIDTH//2
 
+DEBUG = True
 
-# returns the point which is the tip of the nose
-# https://www.pyimagesearch.com/2017/04/17/real-time-facial-landmark-detection-opencv-python-dlib/ 
-# see ^ for landmark mapping
 
+""" Decision functions and their helper functions """
+
+#computes average of two points
 def compute_average(p1, p2):
 	return ((p1[0] + p2[0])//2, (p1[1] + p2[1])//2)
 
+
+# gets the point at a given index in the shape feature array of points
 def get_shape_point(shape, i):
 	return (shape[i][0], shape[i][1] )
 
 
+# returns the point which is the tip of the nose
+# https://www.pyimagesearch.com/2017/04/17/real-time-facial-landmark-detection-opencv-python-dlib/ 
+# see ^ for how facial landmark mapping works. Just look up the index.
 def get_nose_tip_point(shape):
-	return get_shape_point(shape, 30)
+	return get_shape_point(shape, 30) # 30 is the index which maps to nose point
 
 
+# computes the center of the head which is the average of the left and right ear
 def get_center_head_point(shape):
-	left_ear_point = get_shape_point(shape, 2)
-	right_ear_point = get_shape_point(shape, 16)
+	left_ear_point = get_shape_point(shape, 2) # 2 is the index which maps to left ear
+	right_ear_point = get_shape_point(shape, 16) # 16 is the index which maps to right ear
 	return compute_average(left_ear_point, right_ear_point)
 
-def turned_left(nose_tip_point, center_head_point):
+
+# detects if the nose point has distanced itself from the center of the head.
+def is_turned_left(nose_tip_point, center_head_point):
 	return nose_tip_point[0] < (center_head_point[0] - LEFT_THRESHOLD)
 
-def turned_right(nose_tip_point, center_head_point):
+
+# detects if the nose point has distanced itself from the center of the head.
+def is_turned_right(nose_tip_point, center_head_point):
 	return nose_tip_point[0] > (center_head_point[0] + RIGHT_THRESHOLD)
 
+def check_position(shape, frame):
+	center_head_point = get_center_head_point(shape)
+	nose_tip_point = get_nose_tip_point(shape)
+	if DEBUG:
+		cv2.circle(frame, nose_tip_point, 1, (0, 0, 255), -1)
+		cv2.circle(frame, center_head_point, 1, (0, 255, 255), -1)
 
+	if DEBUG:
+		frame = draw_left_line(frame, center_head_point)
+		frame = draw_right_line(frame, center_head_point)
+	if is_turned_left(nose_tip_point, center_head_point):
+		if DEBUG:
+			cv2.putText(frame, "LEFT", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+			print("LEFT")
+	elif is_turned_right(nose_tip_point, center_head_point):
+		if DEBUG:
+			cv2.putText(frame, "RIGHT", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+			print("RIGHT")
+	else:
+		if DEBUG:
+			cv2.putText(frame, "CENTER", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+			print("CENTER")
+
+
+
+
+""" Drawing functions """
+# draws the threshold line for left turn
 def draw_left_line(frame, center_head_point):
 	ptA = ((center_head_point[0] - LEFT_THRESHOLD), 0)
 	ptB = ((center_head_point[0] - LEFT_THRESHOLD), HEIGHT)
 	cv2.line(frame, ptA, ptB, (255, 255, 255), 2)
 	return frame
 
+# draws the threshold line for right turn
 def draw_right_line(frame, center_head_point):
 	ptA = ((center_head_point[0] + RIGHT_THRESHOLD), 0)
 	ptB = ((center_head_point[0] + RIGHT_THRESHOLD), HEIGHT)
@@ -62,16 +101,13 @@ def draw_right_line(frame, center_head_point):
 
 
 
-# To Do
-# should check if someone has actually *turned* their head left rather than merely moved left.
-#def turned_left(point, point_data):
-
-
-
-
 
 """ Main """
  
+# facial detection and real time processing credit goes to:
+# https://www.pyimagesearch.com/2017/04/17/real-time-facial-landmark-detection-opencv-python-dlib/
+# it's ok to use this since its open source and we are allowed to use facial detection packages
+
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-p", "--shape-predictor", required=True,
@@ -112,32 +148,9 @@ while True:
 		shape = predictor(gray, rect)
 		shape = face_utils.shape_to_np(shape)
 
-		# loop over the (x, y)-coordinates for the facial landmarks
-		# and draw them on the image
-		#for (x, y) in shape[30]:
-		#	cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
 
+		check_position(shape, frame)
 		
-		center_head_point = get_center_head_point(shape)
-		nose_tip_point = get_nose_tip_point(shape)
-		cv2.circle(frame, nose_tip_point, 1, (0, 0, 255), -1)
-		cv2.circle(frame, center_head_point, 1, (0, 255, 255), -1)
-
-
-		frame = draw_left_line(frame, center_head_point)
-		frame = draw_right_line(frame, center_head_point)
-		if turned_left(nose_tip_point, center_head_point):
-			cv2.putText(frame, "LEFT", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-		elif turned_right(nose_tip_point, center_head_point):
-			cv2.putText(frame, "RIGHT", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-
-
-
-
-
-
-
-		# if the nose tip was at the center but now it is at the left then print "left"
 
 	  
 	# show the frame
