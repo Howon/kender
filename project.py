@@ -18,6 +18,8 @@ WIDTH = 400
 
 LEFT_THRESHOLD = 20
 RIGHT_THRESHOLD = 20
+UP_THRESHOLD = 35
+DOWN_THRESHOLD = 20
 CENTER_LINE = WIDTH//2
 
 DEBUG = True
@@ -49,6 +51,11 @@ def get_center_head_point(shape):
 	return compute_average(left_ear_point, right_ear_point)
 
 
+# computes the center of the head which is the average of the left and right ear
+def get_chin_point(shape):
+	return get_shape_point(shape, 9) # 9 is the index which maps to chin
+
+
 # detects if the nose point has distanced itself from the center of the head.
 def is_turned_left(nose_tip_point, center_head_point):
 	return nose_tip_point[0] < (center_head_point[0] - LEFT_THRESHOLD)
@@ -58,28 +65,64 @@ def is_turned_left(nose_tip_point, center_head_point):
 def is_turned_right(nose_tip_point, center_head_point):
 	return nose_tip_point[0] > (center_head_point[0] + RIGHT_THRESHOLD)
 
+
+# detects if the nose point has distanced itself from the center of the head.
+def is_turned_up(chin_point, center_head_point):
+	return chin_point[1] < (center_head_point[1] + UP_THRESHOLD)
+
+
+# detects if the nose point has distanced itself from the center of the head.
+def is_turned_down(nose_tip_point, center_head_point):
+	return nose_tip_point[1] > (center_head_point[1] + DOWN_THRESHOLD)
+
+
+# returns what position the head is in
 def check_position(shape, frame):
+	# first get all our points of interest
 	center_head_point = get_center_head_point(shape)
 	nose_tip_point = get_nose_tip_point(shape)
-	if DEBUG:
-		cv2.circle(frame, nose_tip_point, 1, (0, 0, 255), -1)
-		cv2.circle(frame, center_head_point, 1, (0, 255, 255), -1)
+	chin_point = get_chin_point(shape)
 
+	# draw some useful information
 	if DEBUG:
+		cv2.circle(frame, nose_tip_point, 2, (255, 255, 255), -1)
+		cv2.circle(frame, center_head_point, 2, (0, 0, 255), -1)
+		cv2.circle(frame, chin_point, 1, (255, 0, 0), -1)
 		frame = draw_left_line(frame, center_head_point)
 		frame = draw_right_line(frame, center_head_point)
+		frame = draw_up_line(frame, center_head_point)
+		frame = draw_down_line(frame, center_head_point)
+
+	# check what position the head is in
 	if is_turned_left(nose_tip_point, center_head_point):
 		if DEBUG:
 			cv2.putText(frame, "LEFT", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-			print("LEFT")
+			#print("LEFT")
+		return "LEFT"
+	
 	elif is_turned_right(nose_tip_point, center_head_point):
 		if DEBUG:
 			cv2.putText(frame, "RIGHT", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-			print("RIGHT")
+			#print("RIGHT")
+		return "RIGHT"
+	
+	elif is_turned_up(chin_point, center_head_point):
+		if DEBUG:
+			cv2.putText(frame, "UP", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+			#print("UP")
+		return "UP"
+	
+	elif is_turned_down(nose_tip_point, center_head_point):
+		if DEBUG:
+			cv2.putText(frame, "DOWN", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+			#print("DOWN")
+		return "DOWN"
+	
 	else:
 		if DEBUG:
 			cv2.putText(frame, "CENTER", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-			print("CENTER")
+			#print("CENTER")
+		return "CENTER"
 
 
 
@@ -92,6 +135,7 @@ def draw_left_line(frame, center_head_point):
 	cv2.line(frame, ptA, ptB, (255, 255, 255), 2)
 	return frame
 
+
 # draws the threshold line for right turn
 def draw_right_line(frame, center_head_point):
 	ptA = ((center_head_point[0] + RIGHT_THRESHOLD), 0)
@@ -100,6 +144,20 @@ def draw_right_line(frame, center_head_point):
 	return frame
 
 
+# draws the threshold line for right turn
+def draw_up_line(frame, center_head_point):
+	ptA = (0, (center_head_point[1] + UP_THRESHOLD))
+	ptB = (HEIGHT, (center_head_point[1] + UP_THRESHOLD))
+	cv2.line(frame, ptA, ptB, (255, 0, 0), 2)
+	return frame
+
+
+# draws the threshold line for right turn
+def draw_down_line(frame, center_head_point):
+	ptA = (0, (center_head_point[1] + DOWN_THRESHOLD))
+	ptB = (HEIGHT, (center_head_point[1] + DOWN_THRESHOLD))
+	cv2.line(frame, ptA, ptB, (255, 255, 255), 2)
+	return frame
 
 
 """ Main """
@@ -149,7 +207,7 @@ while True:
 		shape = face_utils.shape_to_np(shape)
 
 
-		check_position(shape, frame)
+		print( check_position(shape, frame) )
 		
 
 	  
