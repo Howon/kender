@@ -54,8 +54,14 @@ while True:
 
 		# loop over the (x, y)-coordinates for the facial landmarks
 		# and draw them on the image
+		i = 1
 		for (x, y) in shape:
 			cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
+
+			#uncomment to check indexes
+			#cv2.putText(frame, "*"+str(i), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.3, (0, 0, 255), 1)
+			i+=1
+
 	  
 	# show the frame
 	cv2.imshow("Frame", frame)
