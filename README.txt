@@ -9,16 +9,16 @@ To Do
 ================================================================================
 
 Phase 1:  Detect signals
-Howon
+Joe
 -Detect 2 eyes closed 
 -Detect right eye blinking
 -Detect left eye blinking
+-Detect eyes open
 -Detect nod up ✅
 -Detect nod down ✅
-Joe
 -Detect right head turn ✅
 -Detect left head turn ✅
--Detect default position
+-Detect center head position ✅
 -Detect zoom in
 
 Phase 2:  Develop Grammar for:

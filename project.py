@@ -5,22 +5,30 @@
 # import the necessary packages
 from imutils.video import VideoStream
 from imutils import face_utils
-import datetime
 import argparse
-import imutils
-import time
-import dlib
+import datetime
 import cv2
+import dlib
+import imutils
+import math
+import time
+
+
 
 #constants 
 HEIGHT = 255
 WIDTH = 400
-
-LEFT_THRESHOLD = 20
-RIGHT_THRESHOLD = 20
-UP_THRESHOLD = 35
-DOWN_THRESHOLD = 20
 CENTER_LINE = WIDTH//2
+
+""" Decision Thresholds """
+# thresholds work best for person whose head is 1.5-2.0 ft away from camera
+# eventually might want to make these calibrated or dynamic according to face ratio
+                       # to make it more sensitive:
+LEFT_THRESHOLD = 20    # decrease
+RIGHT_THRESHOLD = 20   # decrease
+UP_THRESHOLD = 45      # increase
+DOWN_THRESHOLD = 20    # decrease
+ZOOM_THRESHOLD = 60    # decrease
 
 DEBUG = True
 
@@ -31,6 +39,9 @@ DEBUG = True
 def compute_average(p1, p2):
 	return ((p1[0] + p2[0])//2, (p1[1] + p2[1])//2)
 
+#gets the distance
+def dist(p1,p2):
+	return math.hypot(p2[0] - p1[0], p2[1] - p1[1])
 
 # gets the point at a given index in the shape feature array of points
 def get_shape_point(shape, i):
@@ -114,15 +125,48 @@ def check_position(shape, frame):
 	
 	elif is_turned_down(nose_tip_point, center_head_point):
 		if DEBUG:
-			cv2.putText(frame, "DOWN", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+			cv2.putText(frame, "DOWN", (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 			#print("DOWN")
 		return "DOWN"
 	
 	else:
 		if DEBUG:
-			cv2.putText(frame, "CENTER", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+			cv2.putText(frame, "CENTER", (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 			#print("CENTER")
 		return "CENTER"
+
+# returns whether the head is zoomed in or not
+# checks distance between center of head and right ear
+def is_zoomed_in(right_ear_point, center_head_point):
+	distance = dist(right_ear_point, center_head_point)
+	#print("distance: ", distance) #uncomment if u need to figure out threshold
+	return distance > ZOOM_THRESHOLD 
+
+
+# checks the zoom position of the head
+def check_zoom(shape, frame):
+	# first get all our points of interest
+	center_head_point = get_center_head_point(shape)
+	right_ear_point = get_shape_point(shape, 16)
+
+	# draw some useful information
+	if DEBUG:
+		cv2.circle(frame, center_head_point, 2, (0, 0, 255), -1)
+		cv2.circle(frame, right_ear_point, 1, (255, 0, 0), -1)
+		cv2.line(frame, center_head_point, right_ear_point, (255, 255, 255), 2)
+		# white line needs to be larger than this pink line according to zoom threshold
+		cv2.line(frame, (200, 105), (258, 87), (255, 200, 255), 2)  
+
+
+	# check what position the head is in
+	if is_zoomed_in(right_ear_point, center_head_point):
+		if DEBUG:
+			cv2.putText(frame, "ZOOMED", (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+		return "ZOOMED"
+	else:
+		if DEBUG:
+			cv2.putText(frame, "NOT ZOOMED", (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+		return "NOT ZOOMED"
 
 
 
@@ -158,6 +202,11 @@ def draw_down_line(frame, center_head_point):
 	ptB = (HEIGHT, (center_head_point[1] + DOWN_THRESHOLD))
 	cv2.line(frame, ptA, ptB, (255, 255, 255), 2)
 	return frame
+
+#simply draw a line between two points
+#def draw_line(frame, pointA, pointB):
+#	cv2.line(frame, pointA, pointB, (255, 255, 255), 2)
+#	return frame
 
 
 """ Main """
@@ -208,6 +257,8 @@ while True:
 
 
 		print( check_position(shape, frame) )
+		print( check_zoom(shape, frame) )
+		#print( check_eyes(shape, frame) )
 		
 
 	  
