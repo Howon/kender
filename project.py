@@ -23,12 +23,13 @@ CENTER_LINE = WIDTH//2
                        # to make it more sensitive:
 LEFT_THRESHOLD = 20    # decrease
 RIGHT_THRESHOLD = 20   # decrease
-UP_THRESHOLD = 45      # increase
+UP_THRESHOLD = 55      # increase
 DOWN_THRESHOLD = 20    # decrease
 ZOOM_THRESHOLD = 60    # decrease
-CLOSE_THRESHOLD = 4.5   # increase
+CLOSE_THRESHOLD = 4   # increase
 
 DEBUG = True
+CALIBRATE = True
 
 
 """ Decision functions and their helper functions """
@@ -46,6 +47,8 @@ def get_shape_point(shape, i):
 	return (shape[i][0], shape[i][1] )
 
 
+
+""" Head Position Detection """
 # returns the point which is the tip of the nose
 # https://www.pyimagesearch.com/2017/04/17/real-time-facial-landmark-detection-opencv-python-dlib/ 
 # see ^ for how facial landmark mapping works. Just look up the index.
@@ -133,11 +136,19 @@ def check_position(shape, frame):
 			#print("CENTER")
 		return "CENTER"
 
+
+
+
+""" Head Zoom Detection """
 # returns whether the head is zoomed in or not
 # checks distance between center of head and right ear
 def is_zoomed_in(right_ear_point, center_head_point):
 	distance = dist(right_ear_point, center_head_point)
-	#print("distance: ", distance) #uncomment if u need to figure out threshold
+
+	""" THRESHOLD DEBUGGER """
+	#uncomment if u need to determine good threshold
+	#print("distance: ", distance)
+
 	return distance > ZOOM_THRESHOLD 
 
 
@@ -151,7 +162,7 @@ def check_zoom(shape, frame):
 	if DEBUG:
 		cv2.circle(frame, center_head_point, 2, (0, 0, 255), -1)
 		cv2.circle(frame, right_ear_point, 1, (255, 0, 0), -1)
-		cv2.line(frame, center_head_point, right_ear_point, (255, 255, 255), 2)
+		cv2.line(frame, center_head_point, right_ear_point, (255, 200, 255), 2)
 		# white line needs to be larger than this pink line according to zoom threshold
 		cv2.line(frame, (200, 105), (258, 87), (255, 200, 255), 2)  
 
@@ -168,6 +179,9 @@ def check_zoom(shape, frame):
 
 
 
+
+
+""" Eye Status Detection """
 # for all eye functions the distance between the eyelid and the bottom of 
 # the eye for each eye is compared to a threshold
 
@@ -208,22 +222,30 @@ def check_eyes(shape, frame):
 	right_eye_bottom_right_point = get_shape_point(shape, 46)
 
 	# calculate useful information
+	# we want to calculate the distance of these lines
+	#
+	#   		*37 *38          	*43 *44
+	#		*36  |   | *39       *42 |   | *45
+	#   		*41 *40          	*47 *46
 	left_eye_left_dist = dist(left_eye_top_left_point, left_eye_bottom_left_point)
 	left_eye_right_dist = dist(left_eye_top_right_point, left_eye_bottom_right_point)
 
 	right_eye_left_dist = dist(right_eye_top_left_point, right_eye_bottom_left_point)
 	right_eye_right_dist = dist(right_eye_top_right_point, right_eye_bottom_right_point)
 
+	# then we take the average distane of the two lines on each eye
 	left_eye_close_dist = statistics.mean([left_eye_left_dist, left_eye_right_dist])
 	right_eye_close_dist = statistics.mean([right_eye_left_dist, right_eye_right_dist])
-
-	print(" left_eye_close_dist: ", round(left_eye_close_dist,2))
-	print("right_eye_close_dist: ", round(right_eye_close_dist,2))
-	print("")
 
 
 	# draw some useful information
 	if DEBUG:
+		""" THRESHOLD DEBUGGER """
+		#uncomment if u need to determine good threshold
+		print(" left_eye_close_dist: ", round(left_eye_close_dist,2))
+		print("right_eye_close_dist: ", round(right_eye_close_dist,2))
+		print("")
+
 		cv2.line(frame, left_eye_top_left_point, left_eye_bottom_left_point, (255, 255, 255), 2)
 		cv2.line(frame, left_eye_top_right_point, left_eye_bottom_right_point, (255, 255, 255), 2)
 		cv2.line(frame, right_eye_top_left_point, right_eye_bottom_left_point, (255, 255, 255), 2)
@@ -266,39 +288,35 @@ def check_eyes(shape, frame):
 """ Drawing functions """
 # draws the threshold line for left turn
 def draw_left_line(frame, center_head_point):
-	ptA = ((center_head_point[0] - LEFT_THRESHOLD), 0)
-	ptB = ((center_head_point[0] - LEFT_THRESHOLD), HEIGHT)
+	ptA = ((center_head_point[0] - LEFT_THRESHOLD), 90)
+	ptB = ((center_head_point[0] - LEFT_THRESHOLD), 115)
 	cv2.line(frame, ptA, ptB, (255, 255, 255), 2)
 	return frame
 
 
 # draws the threshold line for right turn
 def draw_right_line(frame, center_head_point):
-	ptA = ((center_head_point[0] + RIGHT_THRESHOLD), 0)
-	ptB = ((center_head_point[0] + RIGHT_THRESHOLD), HEIGHT)
+	ptA = ((center_head_point[0] + RIGHT_THRESHOLD), 90)
+	ptB = ((center_head_point[0] + RIGHT_THRESHOLD), 115)
 	cv2.line(frame, ptA, ptB, (255, 255, 255), 2)
 	return frame
 
 
 # draws the threshold line for right turn
 def draw_up_line(frame, center_head_point):
-	ptA = (0, (center_head_point[1] + UP_THRESHOLD))
-	ptB = (HEIGHT, (center_head_point[1] + UP_THRESHOLD))
+	ptA = (170, (center_head_point[1] + UP_THRESHOLD))
+	ptB = (230, (center_head_point[1] + UP_THRESHOLD))
 	cv2.line(frame, ptA, ptB, (255, 0, 0), 2)
 	return frame
 
 
 # draws the threshold line for right turn
 def draw_down_line(frame, center_head_point):
-	ptA = (0, (center_head_point[1] + DOWN_THRESHOLD))
-	ptB = (HEIGHT, (center_head_point[1] + DOWN_THRESHOLD))
+	ptA = (170, (center_head_point[1] + DOWN_THRESHOLD))
+	ptB = (230, (center_head_point[1] + DOWN_THRESHOLD))
 	cv2.line(frame, ptA, ptB, (255, 255, 255), 2)
 	return frame
 
-#simply draw a line between two points
-#def draw_line(frame, pointA, pointB):
-#	cv2.line(frame, pointA, pointB, (255, 255, 255), 2)
-#	return frame
 
 
 """ Main """
@@ -347,9 +365,14 @@ while True:
 		shape = predictor(gray, rect)
 		shape = face_utils.shape_to_np(shape)
 
+		if CALIBRATE:
+			cv2.line(frame, (177, 175), (237, 175), (0, 0, 0), 2)
+			cv2.putText(frame, "make chin tangent to black line", (75, 190), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+			cv2.putText(frame, "make hair tangent to top of frame", (75, 205), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+			cv2.putText(frame, "for best results", (75, 220), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 
-		#print( check_position(shape, frame) )
-		#print( check_zoom(shape, frame) )
+		print( check_position(shape, frame) )
+		print( check_zoom(shape, frame) )
 		print( check_eyes(shape, frame) )
 		
 

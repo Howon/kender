@@ -10,10 +10,10 @@ To Do
 
 Phase 1:  Detect signals
 Joe
--Detect 2 eyes closed 
+✅ Detect 2 eyes closed 
 -Detect right eye blinking
 -Detect left eye blinking
--Detect eyes open
+✅ Detect eyes open
 ✅ Detect nod up 
 ✅ Detect nod down 
 ✅ Detect right head turn 
