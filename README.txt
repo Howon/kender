@@ -14,15 +14,17 @@ Joe
 -Detect right eye blinking
 -Detect left eye blinking
 -Detect eyes open
--Detect nod up ✅
--Detect nod down ✅
--Detect right head turn ✅
--Detect left head turn ✅
--Detect center head position ✅
--Detect zoom in
+✅ Detect nod up 
+✅ Detect nod down 
+✅ Detect right head turn 
+✅ Detect left head turn 
+✅ Detect center head position 
+✅ Detect zoom in 
+✅ Detect non zoom 
+-Detect positions based on calibrated or dynamic thresholds for improved accuracy
 
 Phase 2:  Develop Grammar for:
-Joe
+Howon
 -Wake command (close eyes for 1 sec.)
 -Shift window
 -Copy and paste text
