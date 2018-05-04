@@ -51,7 +51,7 @@ time.sleep(2.0)
 frame_counters = {
 	"both_eyes_closed" : 0,
 	"left_eye_closed" : 0,
-	"right_eyes_closed" : 0
+	"right_eye_closed" : 0
 }
 
 #frame_counters = []
@@ -81,33 +81,43 @@ while True:
 	# loop over the face detections
 	for rect in rects:
 		# determine the facial landmarks for the face region, then
-		# convert the facial landmark (x, y)-coordinates to a NumPy
-		# array
+		# convert the facial landmark (x, y)-coordinates to a NumPy array
 		shape = predictor(gray, rect)
 		shape = face_utils.shape_to_np(shape)
 
+		# optionally instruct user to position head in specific spot
 		if CALIBRATE:
 			cv2.line(frame, (177, 175), (237, 175), (0, 0, 0), 2)
 			cv2.putText(frame, "make chin tangent to black line", (75, 190), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 			cv2.putText(frame, "make hair tangent to top of frame", (75, 205), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 			cv2.putText(frame, "for best results", (75, 220), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 
-		#print( detection.check_position(shape, frame) )
-		#print( detection.check_zoom(shape, frame) )
+		# get the status of areas we are interested in
+		head_status = detection.check_position(shape, frame)
+		zoom_status = detection.check_zoom(shape, frame)
 		eye_status, frame_counters = detection.check_eyes(shape, frame, frame_counters)
+
+		print("=================================")
+		print("head_status: ", head_status )
+		print("zoom_status: ", zoom_status)
+		print(" eye_status: ", eye_status)
+
+		# if head_status == "RIGHT":
+			# move window to the right
+		# if eye_status = "EYES BLINKED"
+			# do something....
+		# etc...
 		
+		# record and display count of blinks and winks for accuracy purposes
 		if eye_status == "EYES BLINKED":
 			total_blinks +=1
 		if eye_status == "LEFT WINK":
 			total_left_winks +=1
 		if eye_status == "RIGHT WINK":
 			total_right_winks +=1
-
-
-		cv2.putText(frame, "total blinks: " + str(total_blinks), (230, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-		cv2.putText(frame, "total left winks: " + str(total_left_winks), (230, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-		cv2.putText(frame, "total right winks: " + str(total_right_winks), (230, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-
+		cv2.putText(frame, "total blinks: " + str(total_blinks), (230, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+		cv2.putText(frame, "total left winks: " + str(total_left_winks), (230, 55), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+		cv2.putText(frame, "total right winks: " + str(total_right_winks), (230, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 
 
 

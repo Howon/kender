@@ -11,17 +11,20 @@ To Do
 Phase 1:  Detect signals
 Joe
 ✅ Detect 2 eyes closed 
--Detect right eye blinking
--Detect left eye blinking
+✅ Detect blink
+✅ Detect right eye close
+✅ Detect right eye blinking
+✅ Detect left eye close
+✅ Detect left eye blinking
 ✅ Detect eyes open
-✅ Detect nod up 
-✅ Detect nod down 
-✅ Detect right head turn 
-✅ Detect left head turn 
+✅ Detect head up
+✅ Detect head down
+✅ Detect head right 
+✅ Detect head left
 ✅ Detect center head position 
-✅ Detect zoom in 
+✅ Detect head zoomed in 
 ✅ Detect non zoom 
--Detect positions based on calibrated or dynamic thresholds for improved accuracy
+-Detect positions based on thresholds of ratios rather than absolute values for possibly improved accuracy 
 
 Phase 2:  Develop Grammar for:
 Howon
