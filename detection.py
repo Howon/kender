@@ -21,9 +21,15 @@ DOWN_THRESHOLD = 20    # decrease
 ZOOM_THRESHOLD = 60    # decrease
 CLOSE_THRESHOLD = 4   # increase
 EAR_CLOSE_THRESHOLD = 0.25   # increase
+WINK_THRESHOLD = 0.05   # decrease
 
 DEBUG = True
 CALIBRATE = True
+
+# timing constants
+CLOSED_CONSEC_FRAMES = 3  #this is how many frames the signal is required to be consistent for
+
+
 
 
 """ Decision functions and their helper functions """
@@ -197,14 +203,14 @@ def eye_aspect_ratio(eye):
 	# return the eye aspect ratio (E.A.R.)
 	return EAR
 
-#checks if left eye is not shut but right eye is shut i.e. blink
-def is_right_blinking(left_eye_close_dist, right_eye_close_dist):
-	return left_eye_close_dist > CLOSE_THRESHOLD and right_eye_close_dist < CLOSE_THRESHOLD
+#checks if there is a difference between the EAR of the left and right eye
+def is_right_blinking(left_EAR, right_EAR):
+	return (left_EAR - right_EAR) > WINK_THRESHOLD
 
 
-#checks if left eye is shut but right eye is not shut i.e. blink
-def is_left_blinking(left_eye_close_dist, right_eye_close_dist):
-	return left_eye_close_dist < CLOSE_THRESHOLD and right_eye_close_dist > CLOSE_THRESHOLD
+#checks if there is a difference between the EAR of the left and right eye
+def is_left_blinking(left_EAR, right_EAR):
+	return (right_EAR - left_EAR) > WINK_THRESHOLD
 
 
 #checks if left and right eye have low EAR (i.e. eyes are closed)
@@ -213,7 +219,10 @@ def is_closed(left_EAR, right_EAR):
 
 
 # checks the status of the eyes
-def check_eyes(shape, frame):
+def check_eyes(shape, frame, frame_counters):
+	#print(type(frame_counters['both_eyes_closed']))
+	#print(value)
+
 	# https://www.pyimagesearch.com/2017/04/10/detect-eyes-nose-lips-jaw-dlib-opencv-python/
 	# this is how the eyes are indexed
 	#
@@ -238,16 +247,6 @@ def check_eyes(shape, frame):
 	# calculate the Eye Aspect Ratio (EAR)
 	left_EAR = eye_aspect_ratio(left_eye_points)
 	right_EAR = eye_aspect_ratio(right_eye_points)
-
-	
-
-	EYE_AR_THRESH = 0.3
-	if left_EAR < EYE_AR_THRESH:
-		print("LEFT BLINK")
-
-	if right_EAR < EYE_AR_THRESH:
-		print("RIGHT BLINK")
-
 
 
 	center_head_point = get_center_head_point(shape)
@@ -338,6 +337,8 @@ def check_eyes(shape, frame):
 		cv2.drawContours(frame, [rightEyeHull], -1, (0, 255, 0), 1)
 		cv2.putText(frame, "LEFT EAR" + str(round(left_EAR,2)), (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 		cv2.putText(frame, "RIGHT EAR" + str(round(right_EAR,2)), (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+		cv2.putText(frame, "both eyes closed count: " + str(frame_counters["both_eyes_closed"]), (30, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
 
 		#cv2.line(frame, left_eye_top_left_point, left_eye_bottom_left_point, (255, 255, 255), 2)
 		#cv2.line(frame, left_eye_top_right_point, left_eye_bottom_right_point, (255, 255, 255), 2)
@@ -363,25 +364,36 @@ def check_eyes(shape, frame):
 			i+=1
 		"""
 
+	"""
 	# check the status of the eyes
-	if is_right_blinking(left_eye_close_dist, right_eye_close_dist):
+	if is_right_blinking(left_EAR, right_EAR):
 		if DEBUG:
 			cv2.putText(frame, "RIGHT BLINK", (30, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-		return "RIGHT BINK"
-	elif is_left_blinking(left_eye_close_dist, right_eye_close_dist):
+		return "RIGHT BINK", closed_counter
+	elif is_left_blinking(left_EAR, right_EAR):
 		if DEBUG:
 			cv2.putText(frame, "LEFT BLINK", (30, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-		return "LEFT BINK"
-	elif is_closed(left_EAR, right_EAR):
-		if DEBUG:
-			cv2.putText(frame, "EYES CLOSED", (30, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-		return "EYES CLOSED"
+		return "LEFT BINK", closed_counter
 	else:
 		if DEBUG:
 			cv2.putText(frame, "EYES OPEN", (30, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-		return "EYES OPEN"
+		return "EYES OPEN", closed_counter
+	"""
 
-	return "TESTING"
+	status = "EYES OPEN"
+	if is_closed(left_EAR, right_EAR):
+		frame_counters["both_eyes_closed"] += 1
+		cv2.putText(frame, "EYES CLOSED", (30, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+		status = "EYES CLOSED"
+	else:
+		if frame_counters["both_eyes_closed"] > CLOSED_CONSEC_FRAMES:
+			status = "EYES BLINKED"
+		frame_counters["both_eyes_closed"] = 0
+		
+
+	return status, frame_counters
+	
+
 
 
 """ Drawing functions """

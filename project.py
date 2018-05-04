@@ -40,6 +40,31 @@ print("[INFO] camera sensor warming up...")
 vs = VideoStream(usePiCamera=args["picamera"] > 0).start()
 time.sleep(2.0)
 
+
+
+# I'd prefer to have this dictionary but
+# it's really odd but python kept throwing an error for this dictionary 
+# once it was passed into check_eyes() 
+# therefore im just making a list... ¯\_(ツ)_/¯
+
+# frame counter
+frame_counters = {
+	"both_eyes_closed" : 0,
+	"left_eye_closed" : 0,
+	"right_eyes_closed" : 0
+}
+
+#frame_counters = []
+#frame_counters.append(0) #both_eyes_closed_counter
+#frame_counters.append(0) #left_eye_closed_counter
+#frame_counters.append(0) #right_eyes_closed_counter
+
+
+# eye status counter
+total_blinks = 0
+total_left_winks = 0
+total_right_winks = 0
+
 # loop over the frames from the video stream
 while True:
 	# grab the frame from the threaded video stream, resize it to
@@ -69,8 +94,33 @@ while True:
 
 		#print( detection.check_position(shape, frame) )
 		#print( detection.check_zoom(shape, frame) )
-		print( detection.check_eyes(shape, frame) )
+		eye_status, frame_counters = detection.check_eyes(shape, frame, frame_counters)
 		
+		if eye_status == "EYES BLINKED":
+			total_blinks +=1
+		if eye_status == "LEFT WINK":
+			total_left_winks +=1
+		if eye_status == "RIGHT WINK":
+			total_right_winks +=1
+
+
+		cv2.putText(frame, "total blinks: " + str(total_blinks), (230, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+		cv2.putText(frame, "total left winks: " + str(total_left_winks), (230, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+		cv2.putText(frame, "total right winks: " + str(total_right_winks), (230, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+
+
+
+
+
+		"""
+		if is_closed(left_EAR, right_EAR):
+			COUNTER_CLOSED += 1  
+		else:  
+			if COUNTER_CLOSED >= CLOSED_CONSEC_FRAMES:  
+				cv2.putText(frame, "EYES CLOSED", (30, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+				return "EYES CLOSED"
+			COUNTER_CLOSED = 0
+		"""
 
 	  
 	# show the frame
