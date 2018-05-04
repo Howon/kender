@@ -21,7 +21,7 @@ DOWN_THRESHOLD = 20    # decrease
 ZOOM_THRESHOLD = 60    # decrease
 CLOSE_THRESHOLD = 4   # increase
 EAR_CLOSE_THRESHOLD = 0.25   # increase
-WINK_THRESHOLD = 0.03   # decrease
+WINK_THRESHOLD = 0.02   # decrease (increase to 0.3 to eliminate false positives for blink)
 
 DEBUG = True
 CALIBRATE = True

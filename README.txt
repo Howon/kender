@@ -12,10 +12,10 @@ Phase 1:  Detect signals
 Joe
 ✅ Detect 2 eyes closed 
 ✅ Detect blink
-✅ Detect right eye close
-✅ Detect right eye blinking
-✅ Detect left eye close
-✅ Detect left eye blinking
+- Detect right eye close
+- Detect right eye blinking
+- Detect left eye close
+- Detect left eye blinking
 ✅ Detect eyes open
 ✅ Detect head up
 ✅ Detect head down
