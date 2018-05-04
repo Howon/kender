@@ -67,8 +67,8 @@ while True:
 			cv2.putText(frame, "make hair tangent to top of frame", (75, 205), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 			cv2.putText(frame, "for best results", (75, 220), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 
-		print( detection.check_position(shape, frame) )
-		print( detection.check_zoom(shape, frame) )
+		#print( detection.check_position(shape, frame) )
+		#print( detection.check_zoom(shape, frame) )
 		print( detection.check_eyes(shape, frame) )
 		
 
