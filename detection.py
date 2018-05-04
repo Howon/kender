@@ -5,15 +5,17 @@ import statistics
 import numpy as np
 from scipy.spatial import ConvexHull
 
+DEBUG = True
+
 #constants 
 HEIGHT = 255
 WIDTH = 400
 CENTER_LINE = WIDTH//2
 
 """ Decision Thresholds """
-# thresholds work best for person whose head is 1.5-2.0 ft away from camera
 # eventually might want to make these calibrated or dynamic according to face ratio
-                       # to make it more sensitive:
+# rather than absolute values regarding the frame dimensions
+                       # to make detection more sensitive:
 LEFT_THRESHOLD = 20    # decrease
 RIGHT_THRESHOLD = 20   # decrease
 UP_THRESHOLD = 55      # increase
@@ -21,10 +23,7 @@ DOWN_THRESHOLD = 20    # decrease
 ZOOM_THRESHOLD = 60    # decrease
 CLOSE_THRESHOLD = 4   # increase
 EAR_CLOSE_THRESHOLD = 0.25   # increase
-WINK_THRESHOLD = 0.02   # decrease (increase to 0.3 to eliminate false positives for blink)
-
-DEBUG = True
-CALIBRATE = True
+WINK_THRESHOLD = 0.02   # decrease
 
 # timing constants
 CLOSED_CONSEC_FRAMES = 3  #this is how many frames the signal is required to be consistent for
@@ -32,7 +31,7 @@ CLOSED_CONSEC_FRAMES = 3  #this is how many frames the signal is required to be 
 
 
 
-""" Decision functions and their helper functions """
+""" Helper functions """
 
 #computes average of two points
 def compute_average(p1, p2):
@@ -109,32 +108,31 @@ def check_position(shape, frame):
 	if is_turned_left(nose_tip_point, center_head_point):
 		if DEBUG:
 			cv2.putText(frame, "LEFT", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-			#print("LEFT")
 		return "LEFT"
 	
 	elif is_turned_right(nose_tip_point, center_head_point):
 		if DEBUG:
 			cv2.putText(frame, "RIGHT", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-			#print("RIGHT")
 		return "RIGHT"
 	
 	elif is_turned_up(chin_point, center_head_point):
 		if DEBUG:
 			cv2.putText(frame, "UP", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-			#print("UP")
 		return "UP"
 	
 	elif is_turned_down(nose_tip_point, center_head_point):
 		if DEBUG:
 			cv2.putText(frame, "DOWN", (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-			#print("DOWN")
 		return "DOWN"
 	
 	else:
 		if DEBUG:
 			cv2.putText(frame, "CENTER", (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-			#print("CENTER")
 		return "CENTER"
+
+
+
+
 
 
 
@@ -145,8 +143,8 @@ def check_position(shape, frame):
 def is_zoomed_in(right_ear_point, center_head_point):
 	distance = dist(right_ear_point, center_head_point)
 
-	""" THRESHOLD DEBUGGER """
-	#uncomment if u need to determine good threshold
+	# THRESHOLD DEBUGGER 
+	# uncomment if u need to determine good threshold
 	#print("distance: ", distance)
 
 	return distance > ZOOM_THRESHOLD 
@@ -203,6 +201,8 @@ def eye_aspect_ratio(eye):
 	# return the eye aspect ratio (E.A.R.)
 	return EAR
 
+
+# Note that EAR = eye aspect ratio (E.A.R.)
 #checks if there is a difference between the EAR of the left and right eye
 def is_right_closed(left_EAR, right_EAR):
 	return (left_EAR - right_EAR) > WINK_THRESHOLD and right_EAR < EAR_CLOSE_THRESHOLD
@@ -247,7 +247,8 @@ def check_eyes(shape, frame, frame_counters):
 	right_EAR = eye_aspect_ratio(right_eye_points)
 
 
-	# uncomment if you want some other possibly useful features.
+	# uncomment if you want some other possibly useful 
+	# features that I had been experimenting with...
 	"""
 	# the following may also come in handy at some point: 
 	center_head_point = get_center_head_point(shape)
@@ -324,7 +325,7 @@ def check_eyes(shape, frame, frame_counters):
 		cv2.putText(frame, "RIGHT EAR: " + str(round(right_EAR,2)), (230, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 		#cv2.putText(frame, "both eyes closed count: " + str(frame_counters["both_eyes_closed"]), (30, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
-
+		# uncomment if you want to visualize some of those other features I had calculated above
 		#cv2.line(frame, left_eye_top_left_point, left_eye_bottom_left_point, (255, 255, 255), 2)
 		#cv2.line(frame, left_eye_top_right_point, left_eye_bottom_right_point, (255, 255, 255), 2)
 		#cv2.line(frame, right_eye_top_left_point, right_eye_bottom_left_point, (255, 255, 255), 2)

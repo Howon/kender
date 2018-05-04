@@ -41,24 +41,12 @@ vs = VideoStream(usePiCamera=args["picamera"] > 0).start()
 time.sleep(2.0)
 
 
-
-# I'd prefer to have this dictionary but
-# it's really odd but python kept throwing an error for this dictionary 
-# once it was passed into check_eyes() 
-# therefore im just making a list... ¯\_(ツ)_/¯
-
-# frame counter
+# frame counter stored counts of how many frames have passed for a certain detection
 frame_counters = {
 	"both_eyes_closed" : 0,
 	"left_eye_closed" : 0,
 	"right_eye_closed" : 0
 }
-
-#frame_counters = []
-#frame_counters.append(0) #both_eyes_closed_counter
-#frame_counters.append(0) #left_eye_closed_counter
-#frame_counters.append(0) #right_eyes_closed_counter
-
 
 # eye status counter
 total_blinks = 0
@@ -118,19 +106,6 @@ while True:
 		cv2.putText(frame, "total blinks: " + str(total_blinks), (230, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 		cv2.putText(frame, "total left winks: " + str(total_left_winks), (230, 55), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 		cv2.putText(frame, "total right winks: " + str(total_right_winks), (230, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-
-
-
-
-		"""
-		if is_closed(left_EAR, right_EAR):
-			COUNTER_CLOSED += 1  
-		else:  
-			if COUNTER_CLOSED >= CLOSED_CONSEC_FRAMES:  
-				cv2.putText(frame, "EYES CLOSED", (30, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-				return "EYES CLOSED"
-			COUNTER_CLOSED = 0
-		"""
 
 	  
 	# show the frame
