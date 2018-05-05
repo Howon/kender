@@ -51,6 +51,10 @@ def main():
         # have a maximum width of 400 pixels, and convert it to
         # grayscale
         _, frame = camera.read()
+        h, w, _ = frame.shape
+
+        resize_ratio = 400 / w
+        frame = cv2.resize(frame,  (0,0), fx=resize_ratio, fy=resize_ratio)
         frame = cv2.flip(frame, 1)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -107,7 +111,6 @@ def main():
         if key == ord("q"):
             break
 
-        # do a bit of cleanup
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":

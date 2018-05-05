@@ -12,7 +12,7 @@ DEBUG = True
 #constants
 HEIGHT = 255
 WIDTH = 400
-CENTER_LINE = WIDTH//2
+CENTER_LINE = WIDTH // 2
 
 """ Decision Thresholds """
 # eventually might want to make these calibrated or dynamic according to face ratio
@@ -35,19 +35,18 @@ CLOSED_CONSEC_FRAMES = 3  #this is how many frames the signal is required to be 
 # https://www.pyimagesearch.com/2017/04/17/real-time-facial-landmark-detection-opencv-python-dlib/
 # see ^ for how facial landmark mapping works. Just look up the index.
 def get_nose_tip_point(shape):
-    return get_shape_point(shape, 30) # 30 is the index which maps to nose point
+    return shape_coord(shape, 30) # 30 is the index which maps to nose point
 
 
 # computes the center of the head which is the average of the left and right ear
 def get_center_head_point(shape):
-    left_ear_point = get_shape_point(shape, 2) # 2 is the index which maps to left ear
-    right_ear_point = get_shape_point(shape, 16) # 16 is the index which maps to right ear
+    left_ear_point = shape_coord(shape, 2) # 2 is the index which maps to left ear
+    right_ear_point = shape_coord(shape, 16) # 16 is the index which maps to right ear
     return midpoint(left_ear_point, right_ear_point)
-
 
 # computes the center of the head which is the average of the left and right ear
 def get_chin_point(shape):
-    return get_shape_point(shape, 9) # 9 is the index which maps to chin
+    return shape_coord(shape, 9) # 9 is the index which maps to chin
 
 
 # detects if the nose point has distanced itself from the center of the head.
@@ -120,7 +119,7 @@ def is_zoomed_in(right_ear_point, center_head_point):
 def check_zoom(shape, frame):
     # first get all our points of interest
     center_head_point = get_center_head_point(shape)
-    right_ear_point = get_shape_point(shape, 16)
+    right_ear_point = shape_coord(shape, 16)
 
     # draw some useful information
     if DEBUG:
@@ -186,11 +185,11 @@ def check_eyes(shape, frame, frame_counters):
     # first get all our points of interest
     left_eye_points = []
     for i in range(36, 42):
-        left_eye_points.append(get_shape_point(shape, i))
+        left_eye_points.append(shape_coord(shape, i))
 
     right_eye_points = []
     for i in range(42, 48):
-        right_eye_points.append(get_shape_point(shape, i))
+        right_eye_points.append(shape_coord(shape, i))
 
 
     leftEye = shape[36:42]
@@ -207,15 +206,15 @@ def check_eyes(shape, frame, frame_counters):
     """
     # the following may also come in handy at some point:
     center_head_point = get_center_head_point(shape)
-    left_eye_top_left_point = get_shape_point(shape, 37)
-    left_eye_top_right_point = get_shape_point(shape, 38)
-    left_eye_bottom_left_point = get_shape_point(shape, 41)
-    left_eye_bottom_right_point = get_shape_point(shape, 40)
+    left_eye_top_left_point = shape_coord(shape, 37)
+    left_eye_top_right_point = shape_coord(shape, 38)
+    left_eye_bottom_left_point = shape_coord(shape, 41)
+    left_eye_bottom_right_point = shape_coord(shape, 40)
 
-    right_eye_top_left_point = get_shape_point(shape, 43)
-    right_eye_top_right_point = get_shape_point(shape, 44)
-    right_eye_bottom_left_point = get_shape_point(shape, 47)
-    right_eye_bottom_right_point = get_shape_point(shape, 46)
+    right_eye_top_left_point = shape_coord(shape, 43)
+    right_eye_top_right_point = shape_coord(shape, 44)
+    right_eye_bottom_left_point = shape_coord(shape, 47)
+    right_eye_bottom_right_point = shape_coord(shape, 46)
 
     # we want to calculate the distance of these lines
     #
@@ -241,15 +240,15 @@ def check_eyes(shape, frame, frame_counters):
 
     left_eye_points = np.zeros((6, 2))
     for i, j in zip(range(36,42), range(0,6)):
-        left_eye_points[j,0] = get_shape_point(shape, i)[0]
-        left_eye_points[j,1] = get_shape_point(shape, i)[1]
+        left_eye_points[j,0] = shape_coord(shape, i)[0]
+        left_eye_points[j,1] = shape_coord(shape, i)[1]
     left_eye_center = np.mean(left_eye_points, axis=0)
     left_eye_center = (int(left_eye_center[0]), int(left_eye_center[1]))
 
     right_eye_points = np.zeros((6, 2))
     for i, j in zip(range(42,48), range(0,6)):
-        right_eye_points[j,0] = get_shape_point(shape, i)[0]
-        right_eye_points[j,1] = get_shape_point(shape, i)[1]
+        right_eye_points[j,0] = shape_coord(shape, i)[0]
+        r3ight_eye_points[j,1] = shape_coord(shape, i)[1]
     right_eye_center = np.mean(right_eye_points, axis=0)
     right_eye_center = (int(right_eye_center[0]), int(right_eye_center[1]))
 

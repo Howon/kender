@@ -26,7 +26,7 @@ def dist(p1, p2):
     return math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2)
 
 # gets the point at a given index in the shape feature array of points
-def get_shape_point(shape, i):
+def shape_coord(shape, i):
     return shape[i][0], shape[i][1]
 
 def put_text(frame, text, loc, thickness=0.5, color=(0, 0, 255)):
