@@ -41,7 +41,7 @@ def draw_down_line(frame, head_center):
 
     return frame
 
-class Head:
+class Head():
     """Head Position Detection
 
     https://www.pyimagesearch.com/2017/04/17/real-time-facial-landmark-detection-opencv-python-dlib/

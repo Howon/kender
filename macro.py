@@ -7,15 +7,15 @@ from enum import Enum
 __SPECTACLE_MACROS = '~/Library/Application Support/Spectacle/Shortcuts.json'
 
 class Macro(Enum):
-    MOVE_LEFT = 1
-    MOVE_RIGHT = 2
-    EXPOSE = 3
-    FULLSCREEN = 4
-    MINIMIZE = 5
-    TAB_FORWARD = 6
-    TAB_LEFT = 7
-    COPY = 8
-    PASTE = 9
+    MOVE_LEFT = 0
+    MOVE_RIGHT = 1
+    EXPOSE = 2
+    FULLSCREEN = 3
+    MINIMIZE = 4
+    TAB_FORWARD = 5
+    TAB_LEFT = 6
+    COPY = 7
+    PASTE = 8
 
 class MacroHandler():
     __macros = {
