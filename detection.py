@@ -5,138 +5,48 @@ import statistics
 import numpy as np
 
 from utils import *
+
+from head import Head
+from action import HeadAction
 from scipy.spatial import ConvexHull
 
 DEBUG = True
-
-#constants
-HEIGHT = 255
-WIDTH = 400
-CENTER_LINE = WIDTH // 2
 
 """ Decision Thresholds """
 # eventually might want to make these calibrated or dynamic according to face ratio
 # rather than absolute values regarding the frame dimensions
                        # to make detection more sensitive:
-LEFT_THRESHOLD = 20    # decrease
-RIGHT_THRESHOLD = 20   # decrease
-UP_THRESHOLD = 55      # increase
-DOWN_THRESHOLD = 20    # decrease
-ZOOM_THRESHOLD = 60    # decrease
+
 CLOSE_THRESHOLD = 4   # increase
 EAR_CLOSE_THRESHOLD = 0.25   # increase
 WINK_THRESHOLD = 0.02   # decrease
 
 # timing constants
-CLOSED_CONSEC_FRAMES = 3  #this is how many frames the signal is required to be consistent for
-
-""" Head Position Detection """
-# returns the point which is the tip of the nose
-# https://www.pyimagesearch.com/2017/04/17/real-time-facial-landmark-detection-opencv-python-dlib/
-# see ^ for how facial landmark mapping works. Just look up the index.
-def get_nose_tip_point(shape):
-    return shape_coord(shape, 30) # 30 is the index which maps to nose point
-
-
-# computes the center of the head which is the average of the left and right ear
-def get_center_head_point(shape):
-    left_ear_point = shape_coord(shape, 2) # 2 is the index which maps to left ear
-    right_ear_point = shape_coord(shape, 16) # 16 is the index which maps to right ear
-    return midpoint(left_ear_point, right_ear_point)
-
-# computes the center of the head which is the average of the left and right ear
-def get_chin_point(shape):
-    return shape_coord(shape, 9) # 9 is the index which maps to chin
-
-
-# detects if the nose point has distanced itself from the center of the head.
-def is_turned_left(nose_tip_point, center_head_point):
-    return nose_tip_point[0] < (center_head_point[0] - LEFT_THRESHOLD)
-
-
-# detects if the nose point has distanced itself from the center of the head.
-def is_turned_right(nose_tip_point, center_head_point):
-    return nose_tip_point[0] > (center_head_point[0] + RIGHT_THRESHOLD)
-
-
-# detects if the nose point has distanced itself from the center of the head.
-def is_turned_up(chin_point, center_head_point):
-    return chin_point[1] < (center_head_point[1] + UP_THRESHOLD)
-
-
-# detects if the nose point has distanced itself from the center of the head.
-def is_turned_down(nose_tip_point, center_head_point):
-    return nose_tip_point[1] > (center_head_point[1] + DOWN_THRESHOLD)
-
+CLOSED_CONSEC_FRAMES = 5  #this is how many frames the signal is required to be consistent for
 
 # returns what position the head is in
-def head_pos(shape, frame):
+def detect_head(shape, frame):
     # first get all our points of interest
-    center_head_point = get_center_head_point(shape)
-    nose_tip_point = get_nose_tip_point(shape)
-    chin_point = get_chin_point(shape)
+    cur_head = Head(shape)
+
+    head_state = HeadAction.CENTER
+    zoom_state = cur_head.zoomed_in()
+
+    # check what position the head is in
+    if cur_head.turned_left():
+        head_state = HeadAction.LEFT
+    elif cur_head.turned_right():
+        head_state = HeadAction.RIGHT
+    elif cur_head.turned_up():
+        head_state = HeadAction.UP
+    elif cur_head.turned_down():
+        head_state = HeadAction.DOWN
 
     # draw some useful information
     if DEBUG:
-        cv2.circle(frame, nose_tip_point, 2, (255, 255, 255), -1)
-        cv2.circle(frame, center_head_point, 2, (0, 0, 255), -1)
-        cv2.circle(frame, chin_point, 1, (255, 0, 0), -1)
-        frame = draw_left_line(frame, center_head_point)
-        frame = draw_right_line(frame, center_head_point)
-        frame = draw_up_line(frame, center_head_point)
-        frame = draw_down_line(frame, center_head_point)
+        cur_head.debug(frame)
 
-    # check what position the head is in
-    if is_turned_left(nose_tip_point, center_head_point):
-        return "LEFT"
-
-    elif is_turned_right(nose_tip_point, center_head_point):
-        return "RIGHT"
-
-    elif is_turned_up(chin_point, center_head_point):
-        return "UP"
-
-    elif is_turned_down(nose_tip_point, center_head_point):
-        return "DOWN"
-
-    else:
-        return "CENTER"
-
-""" Head Zoom Detection """
-# returns whether the head is zoomed in or not
-# checks distance between center of head and right ear
-def is_zoomed_in(right_ear_point, center_head_point):
-    distance = dist(right_ear_point, center_head_point)
-
-    # THRESHOLD DEBUGGER
-    # uncomment if u need to determine good threshold
-    #print("distance: ", distance)
-
-    return distance > ZOOM_THRESHOLD
-
-
-# checks the zoom position of the head
-def check_zoom(shape, frame):
-    # first get all our points of interest
-    center_head_point = get_center_head_point(shape)
-    right_ear_point = shape_coord(shape, 16)
-
-    # draw some useful information
-    if DEBUG:
-        cv2.circle(frame, center_head_point, 2, (0, 0, 255), -1)
-        cv2.circle(frame, right_ear_point, 1, (255, 0, 0), -1)
-        cv2.line(frame, center_head_point, right_ear_point, (255, 200, 255), 2)
-        # white line needs to be larger than this pink line according to zoom threshold
-        cv2.line(frame, (200, 105), (258, 87), (255, 200, 255), 2)
-
-    # check what position the head is in
-    if is_zoomed_in(right_ear_point, center_head_point):
-        if DEBUG:
-            cv2.putText(frame, "ZOOMED", (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-        return True
-    if DEBUG:
-        cv2.putText(frame, "NOT ZOOMED", (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-    return False
+    return head_state, zoom_state
 
 """ Eye Status Detection """
 # for all eye functions the distance between the eyelid and the bottom of
@@ -160,22 +70,18 @@ def eye_aspect_ratio(eye):
     # return the eye aspect ratio (E.A.R.)
     return EAR
 
-
 def right_blink(left_EAR, right_EAR):
     return (left_EAR - right_EAR) > WINK_THRESHOLD and right_EAR < EAR_CLOSE_THRESHOLD
 
 def left_blink(left_EAR, right_EAR):
     return (right_EAR - left_EAR) > WINK_THRESHOLD and left_EAR < EAR_CLOSE_THRESHOLD
 
-
 #checks if left and right eye have low EAR (i.e. eyes are closed)
 def is_both_closed(left_EAR, right_EAR):
     return left_EAR < EAR_CLOSE_THRESHOLD and right_EAR < EAR_CLOSE_THRESHOLD
 
-
 # checks the status of the eyes
-def check_eyes(shape, frame, frame_counters):
-
+def detect_eyes(shape, frame, frame_counters):
     # https://www.pyimagesearch.com/2017/04/10/detect-eyes-nose-lips-jaw-dlib-opencv-python/
     # this is how the eyes are indexed
     #
@@ -205,7 +111,7 @@ def check_eyes(shape, frame, frame_counters):
     # features that I had been experimenting with...
     """
     # the following may also come in handy at some point:
-    center_head_point = get_center_head_point(shape)
+    center_head_point = head_center(shape)
     left_eye_top_left_point = shape_coord(shape, 37)
     left_eye_top_right_point = shape_coord(shape, 38)
     left_eye_bottom_left_point = shape_coord(shape, 41)
@@ -324,38 +230,4 @@ def check_eyes(shape, frame, frame_counters):
             status = "LEFT WINK"
         frame_counters["left_blink"] = 0
 
-
     return status
-
-""" Drawing functions """
-# draws the threshold line for left turn
-def draw_left_line(frame, center_head_point):
-    ptA = ((center_head_point[0] - LEFT_THRESHOLD), 90)
-    ptB = ((center_head_point[0] - LEFT_THRESHOLD), 115)
-    cv2.line(frame, ptA, ptB, (255, 255, 255), 2)
-
-    return frame
-
-# draws the threshold line for right turn
-def draw_right_line(frame, center_head_point):
-    ptA = ((center_head_point[0] + RIGHT_THRESHOLD), 90)
-    ptB = ((center_head_point[0] + RIGHT_THRESHOLD), 115)
-    cv2.line(frame, ptA, ptB, (255, 255, 255), 2)
-
-    return frame
-
-# draws the threshold line for right turn
-def draw_up_line(frame, center_head_point):
-    ptA = (170, (center_head_point[1] + UP_THRESHOLD))
-    ptB = (230, (center_head_point[1] + UP_THRESHOLD))
-    cv2.line(frame, ptA, ptB, (255, 0, 0), 2)
-
-    return frame
-
-# draws the threshold line for right turn
-def draw_down_line(frame, center_head_point):
-    ptA = (170, (center_head_point[1] + DOWN_THRESHOLD))
-    ptB = (230, (center_head_point[1] + DOWN_THRESHOLD))
-    cv2.line(frame, ptA, ptB, (255, 255, 255), 2)
-
-    return frame

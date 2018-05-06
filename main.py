@@ -1,14 +1,14 @@
 import argparse
 import datetime
 import cv2
-import detection
 import dlib
 import math
 import time
 
 from utils import put_text
 from imutils import face_utils
-
+#from action import translate
+from detection import detect_head, detect_eyes
 #constants
 CALIBRATE = True
 
@@ -76,15 +76,18 @@ def main():
                 put_text(frame, "for best results", (75, 220))
 
             # get the status of areas we are interested in
-            head_status = detection.head_pos(shape, frame)
-            zoom_status = detection.check_zoom(shape, frame)
-            eye_status = detection.check_eyes(shape, frame, frame_counters)
+            head_state, zoom_state = detect_head(shape, frame)
+            eye_status = detect_eyes(shape, frame, frame_counters)
 
             print("=================================")
-            print("head_status: ", head_status )
-            print("Zoomed: ", zoom_status)
+            print("head_status: ", head_state)
+            print("Zoomed: ", zoom_state)
             print(" eye_status: ", eye_status)
 
+            # translate_head(head_status)
+            # translate_zoom(head_status)
+            # translate_eye(head_status)
+            #
             # if head_status == "RIGHT":
                 # move window to the right
             # if eye_status = "EYES BLINKED"

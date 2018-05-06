@@ -29,5 +29,5 @@ def dist(p1, p2):
 def shape_coord(shape, i):
     return shape[i][0], shape[i][1]
 
-def put_text(frame, text, loc, thickness=0.5, color=(0, 0, 255)):
-    cv2.putText(frame, text, loc, __DEF_FONT, thickness, color, 1)
+def put_text(frame, text, loc, thickness=0.5, color=(0, 0, 255), scale=1):
+    cv2.putText(frame, text, loc, __DEF_FONT, thickness, color, scale)
