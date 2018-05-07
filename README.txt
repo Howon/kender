@@ -69,6 +69,17 @@ cd real-time-facial-landmarks/
 ./run.sh
 
 
+TESTS
+================================================================================
+Run the tester and start doing movements. Let's say you blink 10 times but the 
+total blinks counter only counts 8 blinks than blink detection accuracy = 80%
+You need to keep track of how many times you yourself did an action then check the counter
+
+./tester.sh
+
+
+
+
 
 DESCRIPTION
 ================================================================================

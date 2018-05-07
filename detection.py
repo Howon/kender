@@ -12,7 +12,7 @@ from action import HeadAction, EyeAction
 from scipy.spatial import ConvexHull
 
 DEBUG_HEAD = False
-DEBUG_EYES = True
+DEBUG_EYES = False
 
 """ Decision Thresholds """
 # eventually might want to make these calibrated or dynamic according to face ratio
