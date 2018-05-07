@@ -9,6 +9,7 @@ from utils import put_text
 from imutils import face_utils
 #from action import translate
 from detection import detect_head, detect_eyes
+from action import HeadAction, EyeAction
 #constants
 CALIBRATE = True
 
@@ -79,10 +80,15 @@ def main():
             head_state, zoom_state = detect_head(shape, frame)
             eye_status = detect_eyes(shape, frame, frame_counters)
 
+            # display decisions
             print("=================================")
-            print("head_status: ", head_state)
-            print("Zoomed: ", zoom_state)
-            print(" eye_status: ", eye_status)
+            print(head_state)
+            print(zoom_state)
+            print(eye_status)
+            put_text(frame, str(head_state)[11:], (30, 30), scale=0.5, thickness=2)
+            put_text(frame, str(zoom_state)[11:], (30, 60), scale=0.5, thickness=2)
+            put_text(frame, str(eye_status)[10:], (30, 90), scale=0.5, thickness=2)
+
 
             # translate_head(head_status)
             # translate_zoom(head_status)
@@ -95,11 +101,11 @@ def main():
             # etc...
 
             # record and display count of blinks and winks for accuracy purposes
-            if eye_status == "EYES BLINKED":
+            if eye_status == EyeAction.BOTH_BLINK:
                 total_blinks += 1
-            if eye_status == "LEFT WINK":
+            if eye_status == EyeAction.LEFT_WINK:
                 total_left_winks += 1
-            if eye_status == "RIGHT WINK":
+            if eye_status == EyeAction.RIGHT_WINK:
                 total_right_winks += 1
 
             put_text(frame, "total blinks: " + str(total_blinks), (230, 40))

@@ -32,6 +32,10 @@ class Eyes():
         self.__l_closed = self.__ear_l < CLOSED_THRESH
         self.__r_closed = self.__ear_r < CLOSED_THRESH
 
+        # necessary for drawing the eye in the debug function
+        self.__left_eye_indices = shape[36:42]
+        self.__right_eye_indices = shape[42:48]
+
     def __eye_aspect_ratio(self, eye):
         """Compute the distances between the two sets of vertical eye landmarks.
 
@@ -57,16 +61,13 @@ class Eyes():
     def is_both_closed(self):
         return self.__l_closed and self.__r_closed
 
-    def debug(self, frame, shape):
-        left_eye = shape[36:42]
-        right_eye = shape[42:48]
-
-        leftEyeHull = cv2.convexHull(leftEye)
-        rightEyeHull = cv2.convexHull(rightEye)
+    def debug(self, frame):
+        leftEyeHull = cv2.convexHull(self.__left_eye_indices)
+        rightEyeHull = cv2.convexHull(self.__right_eye_indices)
         cv2.drawContours(frame, [leftEyeHull], -1, (0, 255, 0), 1)
         cv2.drawContours(frame, [rightEyeHull], -1, (0, 255, 0), 1)
-        put_text(frame, " LEFT EAR: " + str(round(ear_l, 2)), (230, 10))
-        put_text(frame, "RIGHT EAR: " + str(round(ear_r, 2)), (230, 25))
+        put_text(frame, " LEFT EAR: " + str(round(self.__ear_l, 2)), (230, 10))
+        put_text(frame, "RIGHT EAR: " + str(round(self.__ear_r, 2)), (230, 25))
 
 """
 # the following may also come in handy at some point:

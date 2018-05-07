@@ -6,6 +6,8 @@ class HeadAction(Enum):
     UP = 2
     DOWN = 3
     CENTER = 4
+    ZOOMED = 5
+    NOT_ZOOMED = 6
 
 class EyeAction(Enum):
     BOTH_OPEN = 0

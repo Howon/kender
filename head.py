@@ -1,9 +1,10 @@
 import cv2
 from utils import *
 
+     # to make more sensitive:
 LEFT_THRESH = 20    # decrease
 RIGHT_THRESH = 20   # decrease
-UP_THRESH = 55      # increase
+UP_THRESH = 40      # increase
 DOWN_THRESH = 20    # decrease
 
 ZOOM_THRESH = 60    # decrease
@@ -97,7 +98,7 @@ class Head():
 
         Checks the chin point is below the head center.
         """
-        _, cy = self.__chin
+        _, cy = self.__nose_tip
         _, hy = self.__head
 
         return cy > (hy + DOWN_THRESH)
@@ -123,8 +124,10 @@ class Head():
         frame = draw_left_line(frame, self.__head)
         frame = draw_right_line(frame, self.__head)
         frame = draw_up_line(frame, self.__head)
+        frame = draw_down_line(frame, self.__head)
 
-        if self.zoomed_in():
-            put_text(frame, "ZOOMED", (30, 60), thickness=0.7, scale=2)
-        else:
-            put_text(frame, "NOT ZOOMED", (30, 60), thickness=0.7, scale=2)
+
+        #if self.zoomed_in():
+        #    put_text(frame, "ZOOMED", (30, 60), thickness=0.7, scale=2)
+        #else:
+        #    put_text(frame, "NOT ZOOMED", (30, 60), thickness=0.7, scale=2)

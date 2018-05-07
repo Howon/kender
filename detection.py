@@ -11,7 +11,8 @@ from eyes import Eyes
 from action import HeadAction, EyeAction
 from scipy.spatial import ConvexHull
 
-DEBUG = True
+DEBUG_HEAD = False
+DEBUG_EYES = True
 
 """ Decision Thresholds """
 # eventually might want to make these calibrated or dynamic according to face ratio
@@ -27,7 +28,7 @@ def detect_head(shape, frame):
     cur_head = Head(shape)
 
     head_state = HeadAction.CENTER
-    zoom_state = cur_head.zoomed_in()
+    zoom_state = HeadAction.NOT_ZOOMED
 
     # check what position the head is in
     if cur_head.turned_left():
@@ -38,9 +39,15 @@ def detect_head(shape, frame):
         head_state = HeadAction.UP
     elif cur_head.turned_down():
         head_state = HeadAction.DOWN
+    else:
+        head_state = HeadAction.CENTER
+
+    # check whether head is zoomed in or not
+    if cur_head.zoomed_in():
+        zoom_state = HeadAction.ZOOMED
 
     # draw some useful information
-    if DEBUG:
+    if DEBUG_HEAD:
         cur_head.debug(frame)
 
     return head_state, zoom_state
@@ -52,7 +59,6 @@ def detect_eyes(shape, frame, frame_counters):
     if cur_eyes.is_both_closed():
         frame_counters["both_eyes_closed"] += 1
         status = EyeAction.BOTH_CLOSED
-        put_text(frame, str(status), (30, 90), thickness=0.7, scale=2)
     else:
         if frame_counters["both_eyes_closed"] > CLOSED_CONSEC_FRAMES:
             status = EyeAction.BOTH_BLINK
@@ -61,7 +67,6 @@ def detect_eyes(shape, frame, frame_counters):
     if cur_eyes.right_blink():
         frame_counters["right_blink"] += 1
         status = EyeAction.RIGHT_CLOSED
-        put_text(frame, str(status), (30, 90), thickness=0.7, scale=2)
     else:
         if frame_counters["right_blink"] > CLOSED_CONSEC_FRAMES:
             status = EyeAction.RIGHT_WINK
@@ -70,10 +75,13 @@ def detect_eyes(shape, frame, frame_counters):
     if cur_eyes.left_blink():
         frame_counters["left_blink"] += 1
         status = EyeAction.LEFT_CLOSED
-        put_text(frame, str(status), (30, 90), thickness=0.7, scale=2)
     else:
         if frame_counters["left_blink"] > CLOSED_CONSEC_FRAMES:
             status = EyeAction.LEFT_WINK
         frame_counters["left_blink"] = 0
+
+    # draw some useful information
+    if DEBUG_EYES:
+        cur_eyes.debug(frame)
 
     return status
