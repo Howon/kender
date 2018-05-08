@@ -24,7 +24,7 @@ CLOSED_CONSEC_FRAMES = 5  #this is how many frames the signal is required to be 
 
 # returns what position the head is in
 def detect_head(shape, frame):
-    cur_head = Head(shape)
+    cur_head = Head(shape, frame)
 
     head_state = HeadAction.CENTER
     zoom_state = HeadAction.ZOOMED if cur_head.zoom() else HeadAction.NOT_ZOOMED

@@ -3,9 +3,8 @@ from utils import *
 
      # to make more sensitive:
 UP_THRESH = 0.5     # decrease
-DOWN_THRESH = 0.5    # decrease
-
-ZOOM_THRESH = 60    # decrease
+DOWN_THRESH = 0.3    # increase
+ZOOM_THRESH = 0.25    # decrease
 
 """ Drawing functions """
 # draws the threshold line for left turn
@@ -46,14 +45,19 @@ class Head():
     https://www.pyimagesearch.com/2017/04/17/real-time-facial-landmark-detection-opencv-python-dlib/
     """
 
-    def __init__(self, shape):
+    def __init__(self, shape, frame):
         """
 
         Left Ear Index: 2.
         Right Ear Index: 16.
         Chin Index: 9.
         Nose Index: 30.
+        Rightmost point in left eye Index: 39
+        Leftmost point in left eye Index: 42
         """
+
+        h, w, _ = frame.shape
+
         self.__left_ear = shape_coord(shape, 2)
         self.__right_ear = shape_coord(shape, 16)
 
@@ -71,7 +75,11 @@ class Head():
         if dist(self.__nose_tip, self.__head) != 0:
             self.__nose_eye_ratio = dist(self.__between_eyes, self.__head) / dist(self.__nose_tip, self.__head)
         else:
-            self.__nose_eye_ratio = dist(self.__between_eyes, self.__head) / 0.01 
+            self.__nose_eye_ratio = dist(self.__between_eyes, self.__head) / 0.01
+
+        self.__head_zoom_ratio = dist(self.__left_ear, self.__right_ear) / w
+
+
 
 
     def turned_left(self):
@@ -119,15 +127,10 @@ class Head():
 
         Compares the distance between center of head and right ear.
         """
-        return dist(self.__right_ear, self.__head) > ZOOM_THRESH
+        return self.__head_zoom_ratio > ZOOM_THRESH
 
     def debug(self, frame):
         h, w, _ = frame.shape
-        # Zoom debugging.
-        cv2.circle(frame, self.__right_ear, 1, (255, 0, 0), -1)
-        cv2.line(frame, self.__head, self.__right_ear, (255, 200, 255), 2)
-        # White line needs to be larger than this pink line according to zoom threshold
-        cv2.line(frame, (200, 105), (258, 87), (255, 200, 255), 2)
 
         # Head turn debugging.
         cv2.circle(frame, self.__nose_tip, 2, (255, 255, 255), -1)
@@ -136,5 +139,9 @@ class Head():
         cv2.circle(frame, self.__between_eyes, 1, (0, 100, 0), -1)
         frame = draw_left_line(frame, midpoint(self.__left_ear, self.__head))
         frame = draw_right_line(frame, midpoint(self.__right_ear, self.__head))
-        put_text(frame, "nose_chin_ratio " + str(round(self.__nose_chin_ratio, 2)), (int(w/2), 4*20))
-        put_text(frame, "nose_eye_ratio " + str(round(self.__nose_eye_ratio, 2)), (int(w/2), 5*20))
+        align_x = int(w*0.1)
+        align_y = int(h*0.4)
+        put_text(frame, "UP: nose_chin_ratio " + str(round(self.__nose_chin_ratio, 2)), (align_x, align_y))
+        put_text(frame, "DOWN: nose_eye_ratio " + str(round(self.__nose_eye_ratio, 2)), (align_x, align_y+20))
+        # Zoom debugging.
+        put_text(frame, "ZOOM: head_zoom_ratio " + str(round(self.__head_zoom_ratio, 2)), (align_x, align_y+2*20))
