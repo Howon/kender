@@ -142,16 +142,16 @@ class Head():
         # Right debugging
         frame = draw_right_line(frame, midpoint(self.__right_ear, self.__head))
         
-        # Up debugging.
-        put_text(frame, "UP: nose_chin_ratio " + str(round(self.__nose_chin_ratio, 2)), (align_x, align_y))
+        # Down debugging.
+        put_text(frame, "DOWN: nose_eye_ratio " + str(round(self.__nose_eye_ratio, 2)), (align_x, align_y+20))
         #cv2.line(frame, self.__head, self.__between_eyes, (0, 100, 0), 2)
         #cv2.line(frame, self.__head, self.__nose_tip, (255, 0, 255), 2)
-        
-        # Down debugging.
+
+        # Up debugging.
+        put_text(frame, "UP: nose_chin_ratio " + str(round(self.__nose_chin_ratio, 2)), (align_x, align_y+20))
         #cv2.line(frame, self.__head, self.__nose_tip, (255, 0, 255), 2)
         #cv2.line(frame, self.__head, self.__chin, (255, 0, 0), 2)
-        put_text(frame, "DOWN: nose_eye_ratio " + str(round(self.__nose_eye_ratio, 2)), (align_x, align_y+20))
 
         # Zoom debugging.
-        #cv2.line(frame, self.__left_ear, self.__right_ear, (255, 0, 255), 2)
         put_text(frame, "ZOOM: head_zoom_ratio " + str(round(self.__head_zoom_ratio, 2)), (align_x, align_y+2*20))
+        #cv2.line(frame, self.__left_ear, self.__right_ear, (255, 0, 255), 2)
