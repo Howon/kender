@@ -1,5 +1,6 @@
 import cv2
 import math
+import numpy as np
 
 __DEF_FONT = cv2.FONT_HERSHEY_SIMPLEX
 
@@ -31,3 +32,12 @@ def shape_coord(shape, i):
 
 def put_text(frame, text, loc, scale=0.5, color=(0, 0, 255), thickness=1):
     cv2.putText(frame, text, loc, __DEF_FONT, scale, color, thickness)
+
+def resize_frame(frame):
+    h, w, _ = frame.shape
+
+    x = frame.copy()
+    right_removed = np.delete(x, range(3 * w // 4, w), axis=1)
+    left_removed = np.delete(right_removed, range(0, w//4), axis=1)
+
+    return cv2.flip(left_removed, 1)

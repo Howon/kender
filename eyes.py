@@ -14,7 +14,6 @@ class Eyes():
     """
     def __init__(self, shape):
         """
-
         Eye indices:
                 *37 *38              *43 *44
             *36         *39      *42         *45
