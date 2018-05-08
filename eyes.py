@@ -3,6 +3,31 @@ from utils import *
 
 WINK_THRESH = 0.02   # decrease
 CLOSED_THRESH = 0.30   # increase
+EYE_RECT_SCALE = 5
+
+def eye_rect(eye_points):
+    """Get the bounding rectangle for a given eye.
+    Args:
+        eye_points:
+               * *
+            *       *
+               * *
+    Returns:
+        Top left and bottom right coordinates for the rectangle that encapsulates
+        eye coordinates.
+            -----------
+            |   * *   |
+            |*       *|
+            |   * *   |
+            -----------
+    """
+    tlx = eye_points[0][0]
+    tly = eye_points[1][1]
+
+    brx = eye_points[3][0]
+    bry = eye_points[4][1]
+
+    return (tlx, tly), (brx, bry)
 
 class Eyes():
     """Eye Status Detection
@@ -35,6 +60,9 @@ class Eyes():
         self.__left_eye_indices = shape[36:42]
         self.__right_eye_indices = shape[42:48]
 
+        self.__l_rect = eye_rect(self.__left_eye_indices)
+        self.__r_rect = eye_rect(self.__right_eye_indices)
+
     def __eye_aspect_ratio(self, eye):
         """Compute the distances between the two sets of vertical eye landmarks.
 
@@ -52,9 +80,7 @@ class Eyes():
         return (A + B) / (2.0 * C)
 
     def right_blink(self):
-        #get histogram for right eye
-        #get histogram for left eye
-        #compare to see how different they are (look for whites of eyes)
+        # Compare to see how different they are (look for whites of eyes)
         # if histograms very different and more white in left eye then return true
         return (self.__ear_l - self.__ear_r) > WINK_THRESH and self.__r_closed
 
@@ -66,9 +92,15 @@ class Eyes():
 
     def debug(self, frame):
         h, w, _ = frame.shape
-        leftEyeHull = cv2.convexHull(self.__left_eye_indices)
-        rightEyeHull = cv2.convexHull(self.__right_eye_indices)
-        cv2.drawContours(frame, [leftEyeHull], -1, (0, 255, 0), 1)
-        cv2.drawContours(frame, [rightEyeHull], -1, (0, 255, 0), 1)
+        l_tl, l_br = self.__l_rect
+        r_tl, r_br = self.__r_rect
+
+        cv2.rectangle(frame, l_tl, l_br, (0,255,0), 3)
+        cv2.rectangle(frame, r_tl, r_br, (0,255,0), 3)
+
+        # leftEyeHull = cv2.convexHull(self.__left_eye_indices)
+        # rightEyeHull = cv2.convexHull(self.__right_eye_indices)
+        # cv2.drawContours(frame, [leftEyeHull], -1, (0, 255, 0), 1)
+        # cv2.drawContours(frame, [rightEyeHull], -1, (0, 255, 0), 1)
         put_text(frame, " LEFT EAR: " + str(round(self.__ear_l, 2)), (int(w/2), 20))
         put_text(frame, "RIGHT EAR: " + str(round(self.__ear_r, 2)), (int(w/2), 2*20))

@@ -23,7 +23,6 @@ def draw_right_line(frame, right_midpoint):
 
     return frame
 
-
 class Head():
     """Head Position Detection
 
@@ -52,12 +51,12 @@ class Head():
         # Used in Down detection
         # Get the vertical distance between the center of the head and the nose tip
         # Get the vertical distance between the center of the head and the chin
-        # Take the ratio of those two distances 
+        # Take the ratio of those two distances
         if dist(self.__chin, self.__head) != 0:
             self.__nose_chin_ratio = y_dist(self.__nose_tip, self.__head) / y_dist(self.__chin, self.__head)
         else:
             self.__nose_chin_ratio = y_dist(self.__nose_tip, self.__head) / 0.01
-        
+
         # Used in Up detection
         # Get the vertical distance between between the center of the head and the nose tip.
         # Get the vertical distance between between the center of the head and the midpoint of the eyes.
@@ -71,13 +70,10 @@ class Head():
         # compure ratio of head width over frame width
         self.__head_zoom_ratio = dist(self.__left_ear, self.__right_ear) / original_frame_width
 
-
-
-
     def turned_left(self):
         """Detects if the head is turned left.
 
-        Compares the nose point against the midpoint 
+        Compares the nose point against the midpoint
         of the leftmost head point and head center
         """
         nx, _ = self.__nose_tip
@@ -88,7 +84,7 @@ class Head():
     def turned_right(self):
         """Detects if the head is turned right.
 
-        Compares the nose point against the midpoint 
+        Compares the nose point against the midpoint
         of the rightmost head point and head center
         """
         nx, _ = self.__nose_tip
@@ -101,7 +97,7 @@ class Head():
 
         Checks if nose tip is above center of head
         Checks if head's features have certain ratio implying up
-        """ 
+        """
         _, ny = self.__nose_tip
         _, hy = self.__head
 
@@ -111,7 +107,7 @@ class Head():
         """Detects if the head is nodding up.
 
         Checks if nose tip is below center of head
-        Checks if head's features have certain ratio implying down  
+        Checks if head's features have certain ratio implying down
         """
         _, ny = self.__nose_tip
         _, hy = self.__head
@@ -141,7 +137,7 @@ class Head():
 
         # Right debugging
         frame = draw_right_line(frame, midpoint(self.__right_ear, self.__head))
-        
+
         # Down debugging.
         put_text(frame, "DOWN: nose_eye_ratio " + str(round(self.__nose_eye_ratio, 2)), (align_x, align_y+20))
         #cv2.line(frame, self.__head, self.__between_eyes, (0, 100, 0), 2)

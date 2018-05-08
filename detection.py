@@ -40,8 +40,8 @@ def detect_head(shape, frame, original_frame_width):
     else:
         head_state = HeadAction.CENTER
 
-    if DEBUG_HEAD:
-        cur_head.debug(frame)
+    # if DEBUG_HEAD:
+    #     cur_head.debug(frame)
 
     return head_state, zoom_state
 
