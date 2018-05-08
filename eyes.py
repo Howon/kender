@@ -2,7 +2,7 @@ import cv2
 from utils import *
 
 WINK_THRESH = 0.02   # decrease
-CLOSED_THRESH = 0.25   # increase
+CLOSED_THRESH = 0.30   # increase
 
 class Eyes():
     """Eye Status Detection
@@ -53,6 +53,10 @@ class Eyes():
         return (A + B) / (2.0 * C)
 
     def right_blink(self):
+        #get histogram for right eye
+        #get histogram for left eye
+        #compare to see how different they are (look for whites of eyes)
+        # if histograms very different and more white in left eye then return true
         return (self.__ear_l - self.__ear_r) > WINK_THRESH and self.__r_closed
 
     def left_blink(self):
@@ -62,12 +66,13 @@ class Eyes():
         return self.__l_closed and self.__r_closed
 
     def debug(self, frame):
+        h, w, _ = frame.shape
         leftEyeHull = cv2.convexHull(self.__left_eye_indices)
         rightEyeHull = cv2.convexHull(self.__right_eye_indices)
         cv2.drawContours(frame, [leftEyeHull], -1, (0, 255, 0), 1)
         cv2.drawContours(frame, [rightEyeHull], -1, (0, 255, 0), 1)
-        put_text(frame, " LEFT EAR: " + str(round(self.__ear_l, 2)), (230, 10))
-        put_text(frame, "RIGHT EAR: " + str(round(self.__ear_r, 2)), (230, 25))
+        put_text(frame, " LEFT EAR: " + str(round(self.__ear_l, 2)), (int(w/2), 20))
+        put_text(frame, "RIGHT EAR: " + str(round(self.__ear_r, 2)), (int(w/2), 2*20))
 
 """
 # the following may also come in handy at some point:

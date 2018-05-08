@@ -2,7 +2,6 @@ import cv2
 from utils import *
 
      # to make more sensitive:
-LEFT_THRESH = 20    # decrease
 RIGHT_THRESH = 20   # decrease
 UP_THRESH = 40      # increase
 DOWN_THRESH = 20    # decrease
@@ -11,17 +10,17 @@ ZOOM_THRESH = 60    # decrease
 
 """ Drawing functions """
 # draws the threshold line for left turn
-def draw_left_line(frame, head_center):
-    ptA = ((head_center[0] - LEFT_THRESH), 90)
-    ptB = ((head_center[0] - LEFT_THRESH), 115)
+def draw_left_line(frame, left_midpoint):
+    ptA = ((left_midpoint[0]), left_midpoint[1] + 50)
+    ptB = ((left_midpoint[0]), left_midpoint[1] - 50)
     cv2.line(frame, ptA, ptB, (255, 255, 255), 2)
 
     return frame
 
 # draws the threshold line for right turn
-def draw_right_line(frame, head_center):
-    ptA = ((head_center[0] + RIGHT_THRESH), 90)
-    ptB = ((head_center[0] + RIGHT_THRESH), 115)
+def draw_right_line(frame, right_midpoint):
+    ptA = ((right_midpoint[0]), right_midpoint[1] + 50)
+    ptB = ((right_midpoint[0]), right_midpoint[1] - 50)
     cv2.line(frame, ptA, ptB, (255, 255, 255), 2)
 
     return frame
@@ -69,9 +68,9 @@ class Head():
         Compares the nose point against the head center.
         """
         nx, _ = self.__nose_tip
-        hx, _ = self.__head
+        mx, _ = midpoint(self.__left_ear, self.__head)
 
-        return nx < (hx - LEFT_THRESH)
+        return nx < mx
 
     def turned_right(self):
         """Detects if the head is turned right.
@@ -79,9 +78,9 @@ class Head():
         Compares the nose point against the head center.
         """
         nx, _ = self.__nose_tip
-        hx, _ = self.__head
+        mx, _ = midpoint(self.__right_ear, self.__head)
 
-        return nx > (hx + RIGHT_THRESH)
+        return nx > mx
 
     def turned_up(self):
         """Detects if the head is nodding up.
@@ -121,8 +120,8 @@ class Head():
         cv2.circle(frame, self.__nose_tip, 2, (255, 255, 255), -1)
         cv2.circle(frame, self.__head, 2, (0, 0, 255), -1)
         cv2.circle(frame, self.__chin, 1, (255, 0, 0), -1)
-        frame = draw_left_line(frame, self.__head)
-        frame = draw_right_line(frame, self.__head)
+        frame = draw_left_line(frame, midpoint(self.__left_ear, self.__head))
+        frame = draw_right_line(frame, midpoint(self.__right_ear, self.__head))
         frame = draw_up_line(frame, self.__head)
         frame = draw_down_line(frame, self.__head)
 
