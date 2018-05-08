@@ -24,13 +24,11 @@ CLOSED_CONSEC_FRAMES = 5  #this is how many frames the signal is required to be 
 
 # returns what position the head is in
 def detect_head(shape, frame):
-    # first get all our points of interest
     cur_head = Head(shape)
 
     head_state = HeadAction.CENTER
-    zoom_state = HeadAction.NOT_ZOOMED
+    zoom_state = HeadAction.ZOOMED if cur_head.zoom() else HeadAction.NOT_ZOOMED
 
-    # check what position the head is in
     if cur_head.turned_left():
         head_state = HeadAction.LEFT
     elif cur_head.turned_right():
@@ -42,11 +40,6 @@ def detect_head(shape, frame):
     else:
         head_state = HeadAction.CENTER
 
-    # check whether head is zoomed in or not
-    if cur_head.zoomed_in():
-        zoom_state = HeadAction.ZOOMED
-
-    # draw some useful information
     if DEBUG_HEAD:
         cur_head.debug(frame)
 

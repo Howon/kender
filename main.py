@@ -5,14 +5,13 @@ import dlib
 import math
 import time
 
-from utils import put_text, resize_frame
 from imutils import face_utils
-#from action import translate
+
+from utils import put_text, resize_frame
 from detection import detect_head, detect_eyes
 from action import HeadAction, EyeAction
-#constants
-CALIBRATE = True
 
+CALIBRATE = True
 
 """ Main """
 
@@ -39,19 +38,28 @@ def main():
         "both_eyes_closed" : 0,
         "left_blink" : 0,
         "right_blink" : 0
+
     }
 
-    # eye status counter
-    total_blinks = 0
-    total_left_winks = 0
-    total_right_winks = 0
+    head_action_log = {
+        HeadAction.LEFT: 0,
+        HeadAction.RIGHT: 0,
+        HeadAction.UP: 0,
+        HeadAction.DOWN: 0,
+        HeadAction.CENTER: 0,
+        HeadAction.ZOOMED: 0,
+        HeadAction.NOT_ZOOMED: 0
+    }
 
-    # head state counter
-    total_left = 0
-    total_right = 0
-    total_up = 0
-    total_down = 0
-    total_zoomed = 0
+    eye_action_log = {
+        EyeAction.BOTH_OPEN: 0,
+        EyeAction.BOTH_BLINK: 0,
+        EyeAction.BOTH_CLOSED: 0,
+        EyeAction.RIGHT_WINK: 0,
+        EyeAction.RIGHT_CLOSED: 0,
+        EyeAction.LEFT_WINK: 0,
+        EyeAction.LEFT_CLOSED: 0
+    }
 
     # loop over the frames from the video stream
     while True:
@@ -60,7 +68,6 @@ def main():
         # grayscale
         _, frame = camera.read()
         frame = resize_frame(frame)
-        print(frame.shape)
         h, w, _ = frame.shape
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -74,44 +81,23 @@ def main():
             shape = face_utils.shape_to_np(shape)
 
             # get the status of areas we are interested in
-            head_state, zoom_state = detect_head(shape, frame)
-            eye_status = detect_eyes(shape, frame, frame_counters)
+            head_action, zoom_action = detect_head(shape, frame)
+            eye_action = detect_eyes(shape, frame, frame_counters)
 
             # display decisions
             print("=================================")
-            align_x = int(w*0.1)
-            align_y = int(h*0.1)
-            print(head_state)
-            print(zoom_state)
-            print(eye_status)
-            #
-            put_text(frame, str(head_state)[11:], (align_x, align_y + 30))
-            put_text(frame, str(zoom_state)[11:], (align_x, align_y + 2*30))
-            put_text(frame, str(eye_status)[10:], (align_x, align_y + 3*30))
+            align_x, align_y = int(w * 0.1), int(h * 0.1)
+            print(head_action)
+            print(zoom_action)
+            print(eye_action)
 
-            # record and display count of blinks and winks for accuracy purposes
-            # if eye_status == EyeAction.BOTH_BLINK:
-            #     total_blinks += 1
-            # if eye_status == EyeAction.LEFT_WINK:
-            #     total_left_winks += 1
-            # if eye_status == EyeAction.RIGHT_WINK:
-            #     total_right_winks += 1
-            # if head_state == HeadAction.LEFT:
-            #     total_left += 1
-            # if head_state == HeadAction.RIGHT:
-            #     total_right += 1
-            # if head_state == HeadAction.UP:
-            #     total_up += 1
-            # if head_state == HeadAction.DOWN:
-            #     total_down += 1
-            # if zoom_state == HeadAction.ZOOMED:
-            #     total_zoomed += 1
-            #
-            # align_x = int(w*0.68)
-            # put_text(frame, "      Total", (align_x, 20))
-            # put_text(frame, "     blinks: " + str(total_blinks), (align_x, 40))
-            # put_text(frame, " left winks: " + str(total_left_winks), (align_x, 55))
-            # put_text(frame, "right winks: " + str(total_right_winks), (align_x, 70))
+            put_text(frame, str(head_action)[11:], (align_x, align_y + 30))
+            put_text(frame, str(zoom_action)[11:], (align_x, align_y + 2 * 30))
+            put_text(frame, str(eye_action)[10:], (align_x, align_y + 3 * 30))
+
+            eye_action_log[eye_action] += 1
+            head_action_log[head_action] += 1
+            head_action_log[zoom_action] += 1
 
         # show the frame
         cv2.imshow("Frame", frame)

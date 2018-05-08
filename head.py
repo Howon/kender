@@ -102,7 +102,7 @@ class Head():
 
         return cy > (hy + DOWN_THRESH)
 
-    def zoomed_in(self):
+    def zoom(self):
         """Determines if the head is zommed in or not.
 
         Compares the distance between center of head and right ear.
