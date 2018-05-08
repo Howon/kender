@@ -61,8 +61,17 @@ class Head():
         self.__nose_tip = shape_coord(shape, 30)
         self.__head = midpoint(self.__left_ear, self.__right_ear)
         self.__between_eyes = midpoint(shape_coord(shape, 39), shape_coord(shape, 42))
-        self.__nose_chin_ratio = dist(self.__nose_tip, self.__head) / dist(self.__chin, self.__head)
-        self.__nose_eye_ratio = dist(self.__between_eyes, self.__head) / dist(self.__nose_tip, self.__head) 
+
+        if dist(self.__chin, self.__head) != 0:
+            self.__nose_chin_ratio = dist(self.__nose_tip, self.__head) / dist(self.__chin, self.__head)
+        else:
+            self.__nose_chin_ratio = dist(self.__nose_tip, self.__head) / 0.01
+        
+
+        if dist(self.__nose_tip, self.__head) != 0:
+            self.__nose_eye_ratio = dist(self.__between_eyes, self.__head) / dist(self.__nose_tip, self.__head)
+        else:
+            self.__nose_eye_ratio = dist(self.__between_eyes, self.__head) / 0.01 
 
 
     def turned_left(self):
