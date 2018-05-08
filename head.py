@@ -23,21 +23,6 @@ def draw_right_line(frame, right_midpoint):
 
     return frame
 
-# draws the threshold line for right turn
-def draw_up_line(frame, head_center):
-    ptA = (170, (head_center[1] + UP_THRESH))
-    ptB = (230, (head_center[1] + UP_THRESH))
-    cv2.line(frame, ptA, ptB, (255, 0, 0), 2)
-
-    return frame
-
-# draws the threshold line for right turn
-def draw_down_line(frame, head_center):
-    ptA = (170, (head_center[1] + DOWN_THRESH))
-    ptB = (230, (head_center[1] + DOWN_THRESH))
-    cv2.line(frame, ptA, ptB, (255, 255, 255), 2)
-
-    return frame
 
 class Head():
     """Head Position Detection
@@ -48,7 +33,7 @@ class Head():
     def __init__(self, shape, original_frame_width):
         """
 
-        Left Ear Index: 2.
+        Left Ear Index: 1.
         Right Ear Index: 16.
         Chin Index: 9.
         Nose Index: 30.
@@ -56,7 +41,7 @@ class Head():
         Leftmost point in left eye Index: 42
         """
 
-        self.__left_ear = shape_coord(shape, 2)
+        self.__left_ear = shape_coord(shape, 1)
         self.__right_ear = shape_coord(shape, 16)
 
         self.__chin = shape_coord(shape, 8)
@@ -64,17 +49,26 @@ class Head():
         self.__head = midpoint(self.__left_ear, self.__right_ear)
         self.__between_eyes = midpoint(shape_coord(shape, 39), shape_coord(shape, 42))
 
+        # Used in Down detection
+        # Get the vertical distance between the center of the head and the nose tip
+        # Get the vertical distance between the center of the head and the chin
+        # Take the ratio of those two distances 
         if dist(self.__chin, self.__head) != 0:
-            self.__nose_chin_ratio = dist(self.__nose_tip, self.__head) / dist(self.__chin, self.__head)
+            self.__nose_chin_ratio = y_dist(self.__nose_tip, self.__head) / y_dist(self.__chin, self.__head)
         else:
-            self.__nose_chin_ratio = dist(self.__nose_tip, self.__head) / 0.01
+            self.__nose_chin_ratio = y_dist(self.__nose_tip, self.__head) / 0.01
         
-
+        # Used in Up detection
+        # Get the vertical distance between between the center of the head and the nose tip.
+        # Get the vertical distance between between the center of the head and the midpoint of the eyes.
+        # Take the ratio of those two distances
         if dist(self.__nose_tip, self.__head) != 0:
-            self.__nose_eye_ratio = dist(self.__between_eyes, self.__head) / dist(self.__nose_tip, self.__head)
+            self.__nose_eye_ratio = y_dist(self.__between_eyes, self.__head) / y_dist(self.__nose_tip, self.__head)
         else:
-            self.__nose_eye_ratio = dist(self.__between_eyes, self.__head) / 0.01
+            self.__nose_eye_ratio = y_dist(self.__between_eyes, self.__head) / 0.01
 
+        # Used in Up detection
+        # compure ratio of head width over frame width
         self.__head_zoom_ratio = dist(self.__left_ear, self.__right_ear) / original_frame_width
 
 
@@ -83,7 +77,8 @@ class Head():
     def turned_left(self):
         """Detects if the head is turned left.
 
-        Compares the nose point against the head center.
+        Compares the nose point against the midpoint 
+        of the leftmost head point and head center
         """
         nx, _ = self.__nose_tip
         mx, _ = midpoint(self.__left_ear, self.__head)
@@ -93,7 +88,8 @@ class Head():
     def turned_right(self):
         """Detects if the head is turned right.
 
-        Compares the nose point against the head center.
+        Compares the nose point against the midpoint 
+        of the rightmost head point and head center
         """
         nx, _ = self.__nose_tip
         mx, _ = midpoint(self.__right_ear, self.__head)
@@ -103,7 +99,8 @@ class Head():
     def turned_up(self):
         """Detects if the head is nodding up.
 
-        Checks if the chin point is above the head center.
+        Checks if nose tip is above center of head
+        Checks if head's features have certain ratio implying up
         """ 
         _, ny = self.__nose_tip
         _, hy = self.__head
@@ -113,7 +110,8 @@ class Head():
     def turned_down(self):
         """Detects if the head is nodding up.
 
-        Checks the chin point is below the head center.
+        Checks if nose tip is below center of head
+        Checks if head's features have certain ratio implying down  
         """
         _, ny = self.__nose_tip
         _, hy = self.__head
@@ -123,23 +121,37 @@ class Head():
     def zoom(self):
         """Determines if the head is zommed in or not.
 
-        Compares the distance between center of head and right ear.
+        Compares one's head width / frame width ratio to threshold
         """
         return self.__head_zoom_ratio > ZOOM_THRESH
 
     def debug(self, frame):
         h, w, _ = frame.shape
-
-        # Head turn debugging.
-        cv2.circle(frame, self.__nose_tip, 2, (255, 255, 255), -1)
-        cv2.circle(frame, self.__head, 2, (0, 0, 255), -1)
-        cv2.circle(frame, self.__chin, 1, (255, 0, 0), -1)
-        cv2.circle(frame, self.__between_eyes, 1, (0, 100, 0), -1)
-        frame = draw_left_line(frame, midpoint(self.__left_ear, self.__head))
-        frame = draw_right_line(frame, midpoint(self.__right_ear, self.__head))
         align_x = int(w*0.1)
         align_y = int(h*0.4)
+
+        # Important features
+        cv2.circle(frame, self.__nose_tip, 2, (255, 255, 255), -1)
+        cv2.circle(frame, self.__head, 2, (255, 0, 255), -1)
+        cv2.circle(frame, self.__chin, 1, (255, 0, 0), -1)
+        cv2.circle(frame, self.__between_eyes, 1, (0, 100, 0), -1)
+
+        # Left debugging
+        frame = draw_left_line(frame, midpoint(self.__left_ear, self.__head))
+
+        # Right debugging
+        frame = draw_right_line(frame, midpoint(self.__right_ear, self.__head))
+        
+        # Up debugging.
         put_text(frame, "UP: nose_chin_ratio " + str(round(self.__nose_chin_ratio, 2)), (align_x, align_y))
+        #cv2.line(frame, self.__head, self.__between_eyes, (0, 100, 0), 2)
+        #cv2.line(frame, self.__head, self.__nose_tip, (255, 0, 255), 2)
+        
+        # Down debugging.
+        #cv2.line(frame, self.__head, self.__nose_tip, (255, 0, 255), 2)
+        #cv2.line(frame, self.__head, self.__chin, (255, 0, 0), 2)
         put_text(frame, "DOWN: nose_eye_ratio " + str(round(self.__nose_eye_ratio, 2)), (align_x, align_y+20))
+
         # Zoom debugging.
+        #cv2.line(frame, self.__left_ear, self.__right_ear, (255, 0, 255), 2)
         put_text(frame, "ZOOM: head_zoom_ratio " + str(round(self.__head_zoom_ratio, 2)), (align_x, align_y+2*20))

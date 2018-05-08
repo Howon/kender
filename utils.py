@@ -26,6 +26,17 @@ def dist(p1, p2):
     """
     return math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2)
 
+def y_dist(p1, p2):
+    """Euclidean distance between two points.
+
+    Args:
+        p1: Starting point.
+        p2: Ending point.
+    Returns:
+        Absolute Y Distance.
+    """
+    return abs(p2[1] - p1[1])
+
 # gets the point at a given index in the shape feature array of points
 def shape_coord(shape, i):
     return shape[i][0], shape[i][1]
