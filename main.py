@@ -10,6 +10,7 @@ from imutils import face_utils
 from utils import put_text, resize_frame
 from detection import detect_head, detect_eyes
 from action import HeadAction, EyeAction
+from display import display_decisions, display_counters
 
 CALIBRATE = True
 
@@ -67,6 +68,7 @@ def main():
         # have a maximum width of 400 pixels, and convert it to
         # grayscale
         _, frame = camera.read()
+        h_original, w_original, _ = frame.shape
         frame = resize_frame(frame)
         h, w, _ = frame.shape
 
@@ -81,23 +83,16 @@ def main():
             shape = face_utils.shape_to_np(shape)
 
             # get the status of areas we are interested in
-            head_action, zoom_action = detect_head(shape, frame)
+            head_action, zoom_action = detect_head(shape, frame, w_original)
             eye_action = detect_eyes(shape, frame, frame_counters)
 
-            # display decisions
-            print("=================================")
-            align_x, align_y = int(w * 0.1), int(h * 0.1)
-            print(head_action)
-            print(zoom_action)
-            print(eye_action)
-
-            put_text(frame, str(head_action)[11:], (align_x, align_y + 30))
-            put_text(frame, str(zoom_action)[11:], (align_x, align_y + 2 * 30))
-            put_text(frame, str(eye_action)[10:], (align_x, align_y + 3 * 30))
-
+            # log decisions
             eye_action_log[eye_action] += 1
             head_action_log[head_action] += 1
             head_action_log[zoom_action] += 1
+
+            display_decisions(frame, head_action, zoom_action, eye_action)
+            display_counters(frame, head_action_log, eye_action_log)
 
         # show the frame
         cv2.imshow("Frame", frame)

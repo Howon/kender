@@ -23,8 +23,8 @@ DEBUG_EYES = True
 CLOSED_CONSEC_FRAMES = 5  #this is how many frames the signal is required to be consistent for
 
 # returns what position the head is in
-def detect_head(shape, frame):
-    cur_head = Head(shape, frame)
+def detect_head(shape, frame, original_frame_width):
+    cur_head = Head(shape, original_frame_width)
 
     head_state = HeadAction.CENTER
     zoom_state = HeadAction.ZOOMED if cur_head.zoom() else HeadAction.NOT_ZOOMED

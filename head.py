@@ -45,7 +45,7 @@ class Head():
     https://www.pyimagesearch.com/2017/04/17/real-time-facial-landmark-detection-opencv-python-dlib/
     """
 
-    def __init__(self, shape, frame):
+    def __init__(self, shape, original_frame_width):
         """
 
         Left Ear Index: 2.
@@ -55,8 +55,6 @@ class Head():
         Rightmost point in left eye Index: 39
         Leftmost point in left eye Index: 42
         """
-
-        h, w, _ = frame.shape
 
         self.__left_ear = shape_coord(shape, 2)
         self.__right_ear = shape_coord(shape, 16)
@@ -77,7 +75,7 @@ class Head():
         else:
             self.__nose_eye_ratio = dist(self.__between_eyes, self.__head) / 0.01
 
-        self.__head_zoom_ratio = dist(self.__left_ear, self.__right_ear) / w
+        self.__head_zoom_ratio = dist(self.__left_ear, self.__right_ear) / original_frame_width
 
 
 
