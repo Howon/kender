@@ -2,9 +2,8 @@ import cv2
 from utils import *
 
      # to make more sensitive:
-RIGHT_THRESH = 20   # decrease
-UP_THRESH = 40      # increase
-DOWN_THRESH = 20    # decrease
+UP_THRESH = 0.5     # decrease
+DOWN_THRESH = 0.5    # decrease
 
 ZOOM_THRESH = 60    # decrease
 
@@ -58,9 +57,13 @@ class Head():
         self.__left_ear = shape_coord(shape, 2)
         self.__right_ear = shape_coord(shape, 16)
 
-        self.__chin = shape_coord(shape, 9)
+        self.__chin = shape_coord(shape, 8)
         self.__nose_tip = shape_coord(shape, 30)
         self.__head = midpoint(self.__left_ear, self.__right_ear)
+        self.__between_eyes = midpoint(shape_coord(shape, 39), shape_coord(shape, 42))
+        self.__nose_chin_ratio = dist(self.__nose_tip, self.__head) / dist(self.__chin, self.__head)
+        self.__nose_eye_ratio = dist(self.__between_eyes, self.__head) / dist(self.__nose_tip, self.__head) 
+
 
     def turned_left(self):
         """Detects if the head is turned left.
@@ -86,21 +89,21 @@ class Head():
         """Detects if the head is nodding up.
 
         Checks if the chin point is above the head center.
-        """
-        _, cy = self.__chin
+        """ 
+        _, ny = self.__nose_tip
         _, hy = self.__head
 
-        return cy < (hy + UP_THRESH)
+        return ny < hy and self.__nose_chin_ratio > UP_THRESH
 
     def turned_down(self):
         """Detects if the head is nodding up.
 
         Checks the chin point is below the head center.
         """
-        _, cy = self.__nose_tip
+        _, ny = self.__nose_tip
         _, hy = self.__head
 
-        return cy > (hy + DOWN_THRESH)
+        return ny > hy and self.__nose_eye_ratio < DOWN_THRESH
 
     def zoom(self):
         """Determines if the head is zommed in or not.
@@ -110,6 +113,7 @@ class Head():
         return dist(self.__right_ear, self.__head) > ZOOM_THRESH
 
     def debug(self, frame):
+        h, w, _ = frame.shape
         # Zoom debugging.
         cv2.circle(frame, self.__right_ear, 1, (255, 0, 0), -1)
         cv2.line(frame, self.__head, self.__right_ear, (255, 200, 255), 2)
@@ -120,13 +124,8 @@ class Head():
         cv2.circle(frame, self.__nose_tip, 2, (255, 255, 255), -1)
         cv2.circle(frame, self.__head, 2, (0, 0, 255), -1)
         cv2.circle(frame, self.__chin, 1, (255, 0, 0), -1)
+        cv2.circle(frame, self.__between_eyes, 1, (0, 100, 0), -1)
         frame = draw_left_line(frame, midpoint(self.__left_ear, self.__head))
         frame = draw_right_line(frame, midpoint(self.__right_ear, self.__head))
-        frame = draw_up_line(frame, self.__head)
-        frame = draw_down_line(frame, self.__head)
-
-
-        #if self.zoomed_in():
-        #    put_text(frame, "ZOOMED", (30, 60), thickness=0.7, scale=2)
-        #else:
-        #    put_text(frame, "NOT ZOOMED", (30, 60), thickness=0.7, scale=2)
+        put_text(frame, "nose_chin_ratio " + str(round(self.__nose_chin_ratio, 2)), (int(w/2), 4*20))
+        put_text(frame, "nose_eye_ratio " + str(round(self.__nose_eye_ratio, 2)), (int(w/2), 5*20))
