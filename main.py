@@ -8,9 +8,9 @@ import time
 from imutils import face_utils
 
 from display import *
-from utils import COUNTER_LOG, REST_STATE, put_text, resize_frame
+from utils import COUNTER_LOG, put_text, resize_frame
 from detection import detect_head, detect_eyes
-from action import ActionHandler
+from action import ActionHandler, HEAD_REST_STATE
 from macro import MacroHandler, translate_action
 
 CALIBRATE = True
@@ -73,7 +73,7 @@ def main():
             COUNTER_LOG[head_action] += 1
 
             perform, action = action_handler.get_next(
-                eye_action if head_action == REST_STATE else head_action)
+                eye_action if head_action == HEAD_REST_STATE else head_action)
 
             display_decisions(frame, head_action, eye_action)
             display_counters(frame, COUNTER_LOG)

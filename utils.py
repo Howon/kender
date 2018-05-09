@@ -24,8 +24,6 @@ COUNTER_LOG = OrderedDict({
     EyeAction.RIGHT_CLOSED: 0
 })
 
-REST_STATE = HeadAction.CENTER
-
 def midpoint(p1, p2):
     """Midpoint between two points.
 
