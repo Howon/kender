@@ -9,8 +9,8 @@ from imutils import face_utils
 
 from utils import put_text, resize_frame
 from detection import detect_head, detect_eyes
-from action import HeadAction, EyeAction
-from display import display_decisions, display_counters
+from action import HeadAction, EyeAction, head_action_log, eye_action_log
+from display import *
 
 CALIBRATE = True
 
@@ -42,26 +42,6 @@ def main():
 
     }
 
-    head_action_log = {
-        HeadAction.LEFT: 0,
-        HeadAction.RIGHT: 0,
-        HeadAction.UP: 0,
-        HeadAction.DOWN: 0,
-        HeadAction.CENTER: 0,
-        HeadAction.ZOOMED: 0,
-        HeadAction.NOT_ZOOMED: 0
-    }
-
-    eye_action_log = {
-        EyeAction.BOTH_OPEN: 0,
-        EyeAction.BOTH_BLINK: 0,
-        EyeAction.BOTH_CLOSED: 0,
-        EyeAction.RIGHT_WINK: 0,
-        EyeAction.RIGHT_CLOSED: 0,
-        EyeAction.LEFT_WINK: 0,
-        EyeAction.LEFT_CLOSED: 0
-    }
-
     # loop over the frames from the video stream
     while True:
         # grab the frame from the threaded video stream, resize it to
@@ -70,6 +50,7 @@ def main():
         _, frame = camera.read()
         h_original, w_original, _ = frame.shape
         frame = resize_frame(frame)
+
         h, w, _ = frame.shape
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

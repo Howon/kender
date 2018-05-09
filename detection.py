@@ -46,7 +46,7 @@ def detect_head(shape, frame, original_frame_width):
     return head_state, zoom_state
 
 def detect_eyes(shape, frame, frame_counters):
-    cur_eyes = Eyes(shape)
+    cur_eyes = Eyes(shape, frame)
     status = EyeAction.BOTH_OPEN
 
     if cur_eyes.is_both_closed():
