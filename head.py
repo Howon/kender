@@ -119,8 +119,8 @@ class Head():
 
     def debug(self, frame):
         h, w, _ = frame.shape
-        align_x = int(w*0.1)
-        align_y = int(h*0.4)
+        align_x = int(w * 0.6)
+        align_y = int(h * 0.2)
 
         # Important features
         cv2.circle(frame, self.__nose_tip, 3, 255, -1)
@@ -140,10 +140,10 @@ class Head():
         #cv2.line(frame, self.__head, self.__nose_tip, (255, 0, 255), 2)
 
         # Up debugging.
-        put_text(frame, "UP: nose_chin_ratio " + str(round(self.__nose_chin_ratio, 2)), (align_x, align_y+20))
+        put_text(frame, "UP: nose_chin_ratio " + str(round(self.__nose_chin_ratio, 2)), (align_x, align_y+40))
         #cv2.line(frame, self.__head, self.__nose_tip, (255, 0, 255), 2)
         #cv2.line(frame, self.__head, self.__chin, (255, 0, 0), 2)
 
         # Zoom debugging.
-        put_text(frame, "ZOOM: head_zoom_ratio " + str(round(self.__head_zoom_ratio, 2)), (align_x, align_y+2*20))
+        put_text(frame, "ZOOM: head_zoom_ratio " + str(round(self.__head_zoom_ratio, 2)), (align_x, align_y+3*20))
         #cv2.line(frame, self.__left_ear, self.__right_ear, (255, 0, 255), 2)

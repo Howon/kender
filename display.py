@@ -5,7 +5,7 @@ from action import HeadAction, EyeAction
 def display_decisions(frame, head_action, eye_action):
 	h, w, _ = frame.shape
 	print("=================================")
-	align_x, align_y = int(w * 0.1), int(h * 0.1)
+	align_x, align_y = int(w * 0.3), int(h * 0.5)
 	print(head_action)
 	print(eye_action)
 

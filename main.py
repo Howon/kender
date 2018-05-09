@@ -72,8 +72,10 @@ def main():
             COUNTER_LOG[eye_action] += 1
             COUNTER_LOG[head_action] += 1
 
-            perform, action = action_handler.get_next(
-                eye_action if head_action == HEAD_REST_STATE else head_action)
+            # perform, action = action_handler.get_next(
+            #     eye_action if head_action == HEAD_REST_STATE else head_action)
+
+            perform, action = action_handler.get_next(head_action)
 
             display_decisions(frame, head_action, eye_action)
             display_counters(frame, COUNTER_LOG)
@@ -81,14 +83,11 @@ def main():
             if perform:
                 COUNTER_LOG[action] += 1
                 macro = translate_action(action)
-
                 macro_handler.execute(macro)
 
-        # show the frame
         cv2.imshow("Frame", frame)
         key = cv2.waitKey(1) & 0xFF
 
-        # if the `q` key was pressed, break from the loop
         if key == ord("q"):
             break
 

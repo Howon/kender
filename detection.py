@@ -21,6 +21,9 @@ DEBUG_EYES = True
 
 # returns what position the head is in
 def detect_head(shape, frame, original_frame_width):
+    if frame is None:
+        return HeadAction.CENTER
+
     cur_head = Head(shape, original_frame_width)
 
     head_state = HeadAction.CENTER
@@ -44,6 +47,9 @@ def detect_head(shape, frame, original_frame_width):
     return head_state
 
 def detect_eyes(shape, frame, frame_counters):
+    if frame is None:
+        return EyeAction.BOTH_OPEN
+
     cur_eyes = Eyes(shape, frame)
     eye_action = EyeAction.BOTH_OPEN
 

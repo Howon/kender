@@ -25,14 +25,15 @@ HEAD_REST_STATE = HeadAction.CENTER
 EYE_REST_STATE = EyeAction.BOTH_OPEN
 
 success = {
-    EyeAction.LEFT_CLOSED: EyeAction.LEFT_WINK,
-    EyeAction.RIGHT_CLOSED: EyeAction.RIGHT_WINK,
-    EyeAction.BOTH_CLOSED: EyeAction.BOTH_BLINK,
-    HeadAction.LEFT: HeadAction.LEFT,
-    HeadAction.RIGHT: HeadAction.RIGHT,
-    HeadAction.UP: HeadAction.UP,
-    HeadAction.DOWN: HeadAction.DOWN,
-    HeadAction.ZOOM: HeadAction.ZOOM
+    (EyeAction.LEFT_CLOSED, EyeAction.BOTH_OPEN): EyeAction.LEFT_WINK,
+    (EyeAction.RIGHT_CLOSED, EyeAction.BOTH_OPEN): EyeAction.RIGHT_WINK,
+    (EyeAction.BOTH_CLOSED, EyeAction.BOTH_OPEN): EyeAction.BOTH_BLINK,
+    (HeadAction.LEFT, HeadAction.CENTER): HeadAction.LEFT,
+    (HeadAction.RIGHT, HeadAction.CENTER): HeadAction.RIGHT,
+    (HeadAction.UP, HeadAction.CENTER) : HeadAction.UP,
+    (HeadAction.DOWN, HeadAction.CENTER): HeadAction.DOWN,
+    (HeadAction.CENTER, HeadAction.ZOOM): HeadAction.ZOOM,
+    (HeadAction.ZOOM, HeadAction.CENTER): HeadAction.ZOOM
 }
 
 class ActionHandler():
@@ -50,23 +51,18 @@ class ActionHandler():
             self.__counter = 0
             a_type, h_type = type(action), type(HEAD_REST_STATE)
 
+            print(a_type, h_type)
             if counts >= (_HEAD_FRAMES if a_type == h_type else _EYE_FRAMES):
                 return True
 
         return False
 
-    def __next_state(self, prev, action):
-        if prev not in success:
+    def __next_state(self, cur_state):
+        print(cur_state)
+        if cur_state not in success:
             return False, None
 
-        # Have to return either of the resting state.
-        if not action == HEAD_REST_STATE or not action == EYE_REST_STATE:
-            return False, None
-
-        candidate = success[prev]
-        c_type, a_type = type(candidate), type(action)
-
-        return c_type == a_type, candidate
+        return True, success[cur_state]
 
     def wake_up(self, action):
         if self.__awake:
@@ -80,7 +76,8 @@ class ActionHandler():
         if self.__consec(action):
             prev = self.__prev_action
             self.__prev_action = action
-            return self.__next_state(prev, action)
+
+            return self.__next_state((prev, action))
 
         self.__prev_action = action
         return False, None
