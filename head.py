@@ -52,19 +52,15 @@ class Head():
         # Get the vertical distance between the center of the head and the nose tip
         # Get the vertical distance between the center of the head and the chin
         # Take the ratio of those two distances
-        if dist(self.__chin, self.__head) != 0:
-            self.__nose_chin_ratio = y_dist(self.__nose_tip, self.__head) / y_dist(self.__chin, self.__head)
-        else:
-            self.__nose_chin_ratio = y_dist(self.__nose_tip, self.__head) / 0.01
+        chin_head_dist = max(y_dist(self.__chin, self.__head), 0.01)
+        self.__nose_chin_ratio = y_dist(self.__nose_tip, self.__head) / chin_head_dist
 
         # Used in Up detection
         # Get the vertical distance between between the center of the head and the nose tip.
         # Get the vertical distance between between the center of the head and the midpoint of the eyes.
         # Take the ratio of those two distances
-        if dist(self.__nose_tip, self.__head) != 0:
-            self.__nose_eye_ratio = y_dist(self.__between_eyes, self.__head) / y_dist(self.__nose_tip, self.__head)
-        else:
-            self.__nose_eye_ratio = y_dist(self.__between_eyes, self.__head) / 0.01
+        nose_head_dist = max(y_dist(self.__nose_tip, self.__head), 0.01)
+        self.__nose_eye_ratio = y_dist(self.__between_eyes, self.__head) / nose_head_dist
 
         # Used in Up detection
         # compure ratio of head width over frame width

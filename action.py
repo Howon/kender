@@ -38,14 +38,3 @@ eye_action_log = OrderedDict({
     EyeAction.RIGHT_WINK: 0,
     EyeAction.RIGHT_CLOSED: 0
 })
-
-# def translate(action):
-#     MOVE_LEFT = 1
-#     MOVE_RIGHT = 2
-#     EXPOSE = 3
-#     FULLSCREEN = 4
-#     MINIMIZE = 5
-#     TAB_FORWARD = 6
-#     TAB_LEFT = 7
-#     COPY = 8
-#     PASTE = 9

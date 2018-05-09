@@ -7,12 +7,14 @@ import time
 
 from imutils import face_utils
 
+from display import *
 from utils import put_text, resize_frame
 from detection import detect_head, detect_eyes
-from action import HeadAction, EyeAction, head_action_log, eye_action_log
-from display import *
+from action import head_action_log, eye_action_log
+from macro import MacroHandler, translate_action
 
 CALIBRATE = True
+__SPECTACLE_MACROS = '~/Library/Application Support/Spectacle/Shortcuts.json'
 
 """ Main """
 
@@ -42,6 +44,8 @@ def main():
 
     }
 
+    macro_handler = MacroHandler(__SPECTACLE_MACROS)
+
     # loop over the frames from the video stream
     while True:
         # grab the frame from the threaded video stream, resize it to
@@ -64,17 +68,21 @@ def main():
             shape = face_utils.shape_to_np(shape)
 
             # get the status of areas we are interested in
-            head_action, zoom_action = detect_head(shape, frame, w_original)
+            head_action = detect_head(shape, frame, w_original)
             eye_action = detect_eyes(shape, frame, frame_counters)
 
             # log decisions
             eye_action_log[eye_action] += 1
             head_action_log[head_action] += 1
-            head_action_log[zoom_action] += 1
+            if head_action == HeadAction.CENTER:
+                action = translate_action(eye_action)
+            else:
+                action = translate_action(head_action)
 
-            display_decisions(frame, head_action, zoom_action, eye_action)
+            display_decisions(frame, head_action, eye_action)
             display_counters(frame, head_action_log, eye_action_log)
 
+            macro_handler.execute(action)
         # show the frame
         cv2.imshow("Frame", frame)
         key = cv2.waitKey(1) & 0xFF

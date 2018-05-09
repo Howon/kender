@@ -3,19 +3,37 @@ import json
 import pyautogui
 
 from enum import Enum
-
-__SPECTACLE_MACROS = '~/Library/Application Support/Spectacle/Shortcuts.json'
+from action import HeadAction, EyeAction
 
 class Macro(Enum):
     MOVE_LEFT = 0
     MOVE_RIGHT = 1
-    EXPOSE = 2
-    FULLSCREEN = 3
+    FULLSCREEN = 2
+    EXPOSE = 3
     MINIMIZE = 4
     TAB_FORWARD = 5
-    TAB_LEFT = 6
+    TAB_BACKWARD = 6
     COPY = 7
     PASTE = 8
+    NO_ACTION = 9
+
+__ATM = {
+    HeadAction.LEFT: Macro.TAB_BACKWARD,
+    HeadAction.RIGHT: Macro.TAB_FORWARD,
+    HeadAction.UP: Macro.COPY,
+    HeadAction.DOWN: Macro.PASTE,
+    HeadAction.ZOOMED: Macro.EXPOSE,
+    HeadAction.CENTER: Macro.NO_ACTION,
+    EyeAction.LEFT_WINK: Macro.MOVE_LEFT,
+    EyeAction.RIGHT_WINK: Macro.MOVE_RIGHT,
+    EyeAction.BOTH_BLINK: Macro.FULLSCREEN,
+    EyeAction.BOTH_OPEN: Macro.NO_ACTION,
+    EyeAction.LEFT_CLOSED: Macro.NO_ACTION,
+    EyeAction.RIGHT_CLOSED: Macro.NO_ACTION,
+}
+
+def translate_action(action):
+    return __ATM[action] if action in __ATM else Macro.NO_ACTION
 
 class MacroHandler():
     __macros = {
@@ -24,7 +42,7 @@ class MacroHandler():
         Macro.EXPOSE: [],
         Macro.MINIMIZE: [],
         Macro.TAB_FORWARD: [],
-        Macro.TAB_LEFT: [],
+        Macro.TAB_BACKWARD: [],
         Macro.COPY: [],
         Macro.PASTE: [],
     }
@@ -33,18 +51,30 @@ class MacroHandler():
         """Loads predefined Spectacle commands and populates __macros dictionary.
         """
         with open(os.path.expanduser(config_file)) as json_data:
-            c = json.load(json_data)
-            self.__macros[Macro.MOVE_LEFT] = c['MoveToLeftHalf'].split("+")
-            self.__macros[Macro.MOVE_RIGHT] = c['MoveToRightHalf'].split("+")
-            self.__macros[Macro.FULLSCREEN] = c['MoveToFullscreen'].split("+")
+            commands = json.load(json_data)
+            for c in commands:
+                name, binding = c['shortcut_name'], c['shortcut_key_binding']
+                if binding is not None:
+                    binding = binding.replace("cmd", "command")
+                    binding = binding.split('+')
 
-        print self.__macros
+                if name == 'MoveToLeftHalf':
+                    self.__macros[Macro.MOVE_LEFT] = binding
+                elif name == 'MoveToRightHalf':
+                    self.__macros[Macro.MOVE_RIGHT] = binding
+                elif name  == 'MoveToFullscreen':
+                    self.__macros[Macro.FULLSCREEN] = binding
 
-    def execute(macro):
-        hotkeys = __macros[macro]
+        self.__macros[Macro.EXPOSE] = ["ctrl", "up"]
+        self.__macros[Macro.MINIMIZE] = ["command", "down"]
+        self.__macros[Macro.TAB_FORWARD] = ["command", "tab"]
+        self.__macros[Macro.TAB_BACKWARD] = ["command", "tab", "shift"]
+        self.__macros[Macro.COPY] = ["command", "c"]
+        self.__macros[Macro.PASTE] = ["command", "v"]
 
-        for k in hotkeys:
-            pyautogui.keyDown(k)
+    def execute(self, macro):
+        if macro == Macro.NO_ACTION:
+            return
 
-        for k in hotkeys[::-1]:
-            pyautogui.keyUp(k)
+        hotkeys = self.__macros[macro]
+        pyautogui.hotkey(*hotkeys)

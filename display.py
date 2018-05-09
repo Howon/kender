@@ -2,17 +2,15 @@ import cv2
 from utils import put_text
 from action import HeadAction, EyeAction
 
-def display_decisions(frame, head_action, zoom_action, eye_action):
+def display_decisions(frame, head_action, eye_action):
 	h, w, _ = frame.shape
 	print("=================================")
 	align_x, align_y = int(w * 0.1), int(h * 0.1)
 	print(head_action)
-	print(zoom_action)
 	print(eye_action)
 
 	put_text(frame, str(head_action)[11:], (align_x, align_y + 30))
-	put_text(frame, str(zoom_action)[11:], (align_x, align_y + 2 * 30))
-	put_text(frame, str(eye_action)[10:], (align_x, align_y + 3 * 30))
+	put_text(frame, str(eye_action)[10:], (align_x, align_y + 2 * 30))
 
 def display_counters(frame, head_action_log, eye_action_log):
     h, w, _ = frame.shape
