@@ -22,14 +22,10 @@ __ATM = {
     HeadAction.RIGHT: Macro.TAB_FORWARD,
     HeadAction.UP: Macro.COPY,
     HeadAction.DOWN: Macro.PASTE,
-    HeadAction.ZOOMED: Macro.EXPOSE,
-    HeadAction.CENTER: Macro.NO_ACTION,
+    HeadAction.ZOOM: Macro.EXPOSE,
     EyeAction.LEFT_WINK: Macro.MOVE_LEFT,
     EyeAction.RIGHT_WINK: Macro.MOVE_RIGHT,
     EyeAction.BOTH_BLINK: Macro.FULLSCREEN,
-    EyeAction.BOTH_OPEN: Macro.NO_ACTION,
-    EyeAction.LEFT_CLOSED: Macro.NO_ACTION,
-    EyeAction.RIGHT_CLOSED: Macro.NO_ACTION,
 }
 
 def translate_action(action):
@@ -77,4 +73,6 @@ class MacroHandler():
             return
 
         hotkeys = self.__macros[macro]
+
+        print(hotkeys)
         pyautogui.hotkey(*hotkeys)

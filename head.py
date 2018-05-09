@@ -123,10 +123,10 @@ class Head():
         align_y = int(h*0.4)
 
         # Important features
-        cv2.circle(frame, self.__nose_tip, 2, (255, 255, 255), -1)
-        cv2.circle(frame, self.__head, 2, (255, 0, 255), -1)
-        cv2.circle(frame, self.__chin, 1, (255, 0, 0), -1)
-        cv2.circle(frame, self.__between_eyes, 1, (0, 100, 0), -1)
+        cv2.circle(frame, self.__nose_tip, 3, 255, -1)
+        cv2.circle(frame, self.__head, 3, 255, -1)
+        cv2.circle(frame, self.__chin, 3, 255, -1)
+        cv2.circle(frame, self.__between_eyes, 3, 255, -1)
 
         # Left debugging
         frame = draw_left_line(frame, midpoint(self.__left_ear, self.__head))

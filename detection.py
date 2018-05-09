@@ -14,9 +14,6 @@ from scipy.spatial import ConvexHull
 DEBUG_HEAD = True
 DEBUG_EYES = True
 
-# timing constants
-CLOSED_CONSEC_FRAMES = 1  #this is how many frames the signal is required to be consistent for
-
 """ Decision Thresholds """
 # eventually might want to make these calibrated or dynamic according to face ratio
 # rather than absolute values regarding the frame dimensions
@@ -29,7 +26,7 @@ def detect_head(shape, frame, original_frame_width):
     head_state = HeadAction.CENTER
 
     if cur_head.zoom():
-        head_state = HeadAction.ZOOMED
+        head_state = HeadAction.ZOOM
     elif cur_head.turned_left():
         head_state = HeadAction.LEFT
     elif cur_head.turned_right():
@@ -54,24 +51,18 @@ def detect_eyes(shape, frame, frame_counters):
         frame_counters["both_eyes_closed"] += 1
         eye_action = EyeAction.BOTH_CLOSED
     else:
-        if frame_counters["both_eyes_closed"] > CLOSED_CONSEC_FRAMES:
-            eye_action = EyeAction.BOTH_BLINK
         frame_counters["both_eyes_closed"] = 0
 
     if cur_eyes.right_blink():
         frame_counters["right_blink"] += 1
         eye_action = EyeAction.RIGHT_CLOSED
     else:
-        if frame_counters["right_blink"] > CLOSED_CONSEC_FRAMES:
-            eye_action = EyeAction.RIGHT_WINK
         frame_counters["right_blink"] = 0
 
     if cur_eyes.left_blink():
         frame_counters["left_blink"] += 1
         eye_action = EyeAction.LEFT_CLOSED
     else:
-        if frame_counters["left_blink"] > CLOSED_CONSEC_FRAMES:
-            eye_action = EyeAction.LEFT_WINK
         frame_counters["left_blink"] = 0
 
     if DEBUG_EYES:

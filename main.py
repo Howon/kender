@@ -8,15 +8,13 @@ import time
 from imutils import face_utils
 
 from display import *
-from utils import put_text, resize_frame
+from utils import COUNTER_LOG, REST_STATE, put_text, resize_frame
 from detection import detect_head, detect_eyes
-from action import head_action_log, eye_action_log
+from action import ActionHandler
 from macro import MacroHandler, translate_action
 
 CALIBRATE = True
 __SPECTACLE_MACROS = '~/Library/Application Support/Spectacle/Shortcuts.json'
-
-""" Main """
 
 # facial detection and real time processing credit goes to:
 # https://www.pyimagesearch.com/2017/04/17/real-time-facial-landmark-detection-opencv-python-dlib/
@@ -31,6 +29,9 @@ args = vars(ap.parse_args())
 def main():
     print("[INFO] loading facial landmark predictor...")
 
+    action_handler = ActionHandler()
+    macro_handler = MacroHandler(__SPECTACLE_MACROS)
+
     detector = dlib.get_frontal_face_detector()
     predictor = dlib.shape_predictor(args["shape_predictor"])
 
@@ -41,10 +42,7 @@ def main():
         "both_eyes_closed" : 0,
         "left_blink" : 0,
         "right_blink" : 0
-
     }
-
-    macro_handler = MacroHandler(__SPECTACLE_MACROS)
 
     # loop over the frames from the video stream
     while True:
@@ -71,18 +69,21 @@ def main():
             head_action = detect_head(shape, frame, w_original)
             eye_action = detect_eyes(shape, frame, frame_counters)
 
-            # log decisions
-            eye_action_log[eye_action] += 1
-            head_action_log[head_action] += 1
-            if head_action == HeadAction.CENTER:
-                action = translate_action(eye_action)
-            else:
-                action = translate_action(head_action)
+            COUNTER_LOG[eye_action] += 1
+            COUNTER_LOG[head_action] += 1
+
+            perform, action = action_handler.get_next(
+                eye_action if head_action == REST_STATE else head_action)
 
             display_decisions(frame, head_action, eye_action)
-            display_counters(frame, head_action_log, eye_action_log)
+            display_counters(frame, COUNTER_LOG)
 
-            macro_handler.execute(action)
+            if perform:
+                COUNTER_LOG[action] += 1
+                macro = translate_action(action)
+
+                macro_handler.execute(macro)
+
         # show the frame
         cv2.imshow("Frame", frame)
         key = cv2.waitKey(1) & 0xFF

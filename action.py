@@ -1,5 +1,6 @@
 from enum import Enum
-from collections import OrderedDict
+
+CONSEC_FRAMES = 2
 
 class HeadAction(Enum):
     LEFT = 0
@@ -7,8 +8,8 @@ class HeadAction(Enum):
     UP = 2
     DOWN = 3
     CENTER = 4
-    ZOOMED = 5
-    NOT_ZOOMED = 6
+    ZOOM = 5
+    NOT_ZOOM = 6
 
 class EyeAction(Enum):
     BOTH_OPEN = 0
@@ -19,22 +20,38 @@ class EyeAction(Enum):
     RIGHT_WINK = 3
     RIGHT_CLOSED = 4
 
-head_action_log = OrderedDict({
-    HeadAction.LEFT: 0,
-    HeadAction.RIGHT: 0,
-    HeadAction.UP: 0,
-    HeadAction.DOWN: 0,
-    HeadAction.CENTER: 0,
-    HeadAction.ZOOMED: 0,
-    HeadAction.NOT_ZOOMED: 0
-})
+success = {
+    EyeAction.LEFT_CLOSED: EyeAction.LEFT_WINK,
+    EyeAction.RIGHT_CLOSED: EyeAction.RIGHT_WINK,
+    EyeAction.BOTH_CLOSED: EyeAction.BOTH_BLINK,
+    HeadAction.LEFT: HeadAction.LEFT,
+    HeadAction.RIGHT: HeadAction.RIGHT,
+    HeadAction.UP: HeadAction.UP,
+    HeadAction.DOWN: HeadAction.DOWN,
+    HeadAction.ZOOM: HeadAction.ZOOM
+}
 
-eye_action_log = OrderedDict({
-    EyeAction.BOTH_OPEN: 0,
-    EyeAction.BOTH_BLINK: 0,
-    EyeAction.BOTH_CLOSED: 0,
-    EyeAction.LEFT_WINK: 0,
-    EyeAction.LEFT_CLOSED: 0,
-    EyeAction.RIGHT_WINK: 0,
-    EyeAction.RIGHT_CLOSED: 0
-})
+class ActionHandler():
+    def __init__(self):
+        self.__prev_action = None
+        self.__counter = 0
+        return
+
+    def __consec(self, action):
+        if self.__prev_action == action:
+            self.__counter += 1
+        else:
+            counts = self.__counter
+            self.__counter = 0
+
+            if counts >= CONSEC_FRAMES:
+                return True
+
+    def get_next(self, action):
+        if self.__consec(action):
+            prev = self.__prev_action
+            self.__prev_action = action
+            return prev in success, success[prev] if prev in success else None
+
+        self.__prev_action = action
+        return False, None

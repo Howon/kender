@@ -1,7 +1,7 @@
 import cv2
 from utils import *
 
-WINK_THRESH = 0.01   # decrease
+WINK_THRESH = 0.02   # decrease
 CLOSED_THRESH = 0.30   # increase
 EYE_HIST_THRES = 0.15
 EYE_RECT_MODIFIER = 10

@@ -2,7 +2,29 @@ import cv2
 import math
 import numpy as np
 
+from collections import OrderedDict
+from action  import HeadAction, EyeAction
+
 __DEF_FONT = cv2.FONT_HERSHEY_SIMPLEX
+
+COUNTER_LOG = OrderedDict({
+    HeadAction.LEFT: 0,
+    HeadAction.RIGHT: 0,
+    HeadAction.UP: 0,
+    HeadAction.DOWN: 0,
+    HeadAction.CENTER: 0,
+    HeadAction.ZOOM: 0,
+    HeadAction.NOT_ZOOM: 0,
+    EyeAction.BOTH_OPEN: 0,
+    EyeAction.BOTH_BLINK: 0,
+    EyeAction.BOTH_CLOSED: 0,
+    EyeAction.LEFT_WINK: 0,
+    EyeAction.LEFT_CLOSED: 0,
+    EyeAction.RIGHT_WINK: 0,
+    EyeAction.RIGHT_CLOSED: 0
+})
+
+REST_STATE = HeadAction.CENTER
 
 def midpoint(p1, p2):
     """Midpoint between two points.
