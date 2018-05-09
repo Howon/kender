@@ -41,8 +41,8 @@ def detect_head(shape, frame, original_frame_width):
     else:
         head_state = HeadAction.CENTER
 
-    # if DEBUG_HEAD:
-    #     cur_head.debug(frame)
+    if DEBUG_HEAD:
+        cur_head.debug(frame)
 
     return head_state, zoom_state
 
@@ -50,7 +50,7 @@ def detect_eyes(shape, frame, frame_counters):
     cur_eyes = Eyes(shape, frame)
     status = EyeAction.BOTH_OPEN
 
-    if cur_eyes.is_both_closed():
+    if cur_eyes.both_closed():
         frame_counters["both_eyes_closed"] += 1
         status = EyeAction.BOTH_CLOSED
     else:
@@ -74,7 +74,6 @@ def detect_eyes(shape, frame, frame_counters):
             status = EyeAction.LEFT_WINK
         frame_counters["left_blink"] = 0
 
-    # draw some useful information
     if DEBUG_EYES:
         cur_eyes.debug(frame)
 

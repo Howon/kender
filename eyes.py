@@ -1,7 +1,7 @@
 import cv2
 from utils import *
 
-WINK_THRESH = 0.02   # decrease
+WINK_THRESH = 0.01   # decrease
 CLOSED_THRESH = 0.30   # increase
 EYE_HIST_THRES = 0.15
 EYE_RECT_MODIFIER = 10
@@ -76,7 +76,7 @@ class Eyes():
 
         _, thresh_eye = cv2.threshold(gray_eye, 40, 255, cv2.THRESH_BINARY)
 
-        cv2.imshow("eye.png", np.hstack((gray_eye, thresh_eye)))
+#        cv2.imshow("eye.png", np.hstack((gray_eye, thresh_eye)))
         return (tlx, tly), (brx, bry), thresh_eye
 
     def __eye_aspect_ratio(self, eye):
@@ -101,13 +101,13 @@ class Eyes():
 
         return 1 - (len(eye.nonzero()[0]) / (h * w))
 
-    def right_blink(self):
-        return self.__r_closed
-
     def left_blink(self):
-        return self.__l_closed
+        return (self.__ear_r - self.__ear_l) > WINK_THRESH and self.__l_closed
 
-    def is_both_closed(self):
+    def right_blink(self):
+        return (self.__ear_l - self.__ear_r) > WINK_THRESH and self.__r_closed
+
+    def both_closed(self):
         return self.__l_closed and self.__r_closed
 
     def debug(self, frame):
