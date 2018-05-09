@@ -37,6 +37,7 @@ eye_action_log = {
     EyeAction.LEFT_WINK: 0,
     EyeAction.LEFT_CLOSED: 0
 }
+
 # def translate(action):
 #     MOVE_LEFT = 1
 #     MOVE_RIGHT = 2

@@ -102,10 +102,10 @@ class Eyes():
         return 1 - (len(eye.nonzero()[0]) / (h * w))
 
     def right_blink(self):
-        return (self.__ear_l - self.__ear_r) > WINK_THRESH and self.__r_closed
+        return self.__r_closed
 
     def left_blink(self):
-        return (self.__ear_r - self.__ear_l) > WINK_THRESH and self.__l_closed
+        return self.__l_closed
 
     def is_both_closed(self):
         return self.__l_closed and self.__r_closed

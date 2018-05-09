@@ -14,13 +14,14 @@ from scipy.spatial import ConvexHull
 DEBUG_HEAD = True
 DEBUG_EYES = True
 
+
+# timing constants
+CLOSED_CONSEC_FRAMES = 1  #this is how many frames the signal is required to be consistent for
+
 """ Decision Thresholds """
 # eventually might want to make these calibrated or dynamic according to face ratio
 # rather than absolute values regarding the frame dimensions
                        # to make detection more sensitive:
-
-# timing constants
-CLOSED_CONSEC_FRAMES = 5  #this is how many frames the signal is required to be consistent for
 
 # returns what position the head is in
 def detect_head(shape, frame, original_frame_width):
