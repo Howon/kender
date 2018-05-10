@@ -78,5 +78,7 @@ class MacroHandler():
 
         hotkeys = self.__macros[macro]
 
+        pyautogui.hotkey("ctrl")
+
         pyautogui.hotkey(*hotkeys)
         time.sleep(_SLEEP_DURATION)

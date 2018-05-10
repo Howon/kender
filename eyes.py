@@ -177,8 +177,13 @@ class Eyes():
         l_disp_y = 0
         if self.__l_disp is not None:
             l_disp_y, l_disp_x, _ = self.__l_disp.shape
+
+            if l_disp_x >= w:
+                return
             frame[0:l_disp_y, 0:l_disp_x] = self.__l_disp
 
         if self.__r_disp is not None:
             r_disp_y, r_disp_x, _ = self.__r_disp.shape
+            if l_disp_y >= w:
+                return
             frame[l_disp_y:(l_disp_y + r_disp_y), 0:r_disp_x] = self.__r_disp
