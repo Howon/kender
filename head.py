@@ -126,15 +126,21 @@ class Head():
         frame = draw_left_line(frame, midpoint(self.__left_ear, self.__head))
         frame = draw_right_line(frame, midpoint(self.__right_ear, self.__head))
 
+        nh_color = (255, 0, 0)
+
+        if self.turned_up() or self.turned_down():
+            nh_color = (255, 0, 255)
+
+        cv2.line(frame, self.__head, self.__nose_tip, nh_color, 2)
+        cv2.line(frame, self.__nose_tip, self.__chin, (255, 0, 0), 2)
+
         # Down debugging.
         put_text(frame, "DOWN: " + str(self.__nc_ratio),
                  (align_x, align_y + 20))
-        cv2.line(frame, self.__head, self.__nose_tip, (255, 0, 255), 2)
 
         # Up debugging.
         put_text(frame, "UP: " + str(round(self.__nc_ratio, 2)),
                  (align_x, align_y + 40))
-        cv2.line(frame, self.__nose_tip, self.__chin, (255, 0, 0), 2)
 
         # Zoom debugging.
         put_text(frame, "ZOOM: " + str(round(self.__head_zoom_ratio, 2)),

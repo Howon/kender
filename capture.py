@@ -1,4 +1,3 @@
-import argparse
 import datetime
 import cv2
 import dlib
@@ -16,17 +15,7 @@ from action import ActionHandler, HEAD_REST_STATE
 
 CALIBRATE = True
 
-ap = argparse.ArgumentParser()
-ap.add_argument("-p", "--shape-predictor", required=True,
-                help="Path to facial landmark predictor")
-ap.add_argument("-d", "--debug", action="store_true", required=False,
-                help="Displays debugging information.")
-ap.add_argument("-l", "--log", action="store_true", required=False,
-                help="Displays logging information.")
-
-args = vars(ap.parse_args())
-
-def capture_action(cb):
+def capture_action(pred_path, cb, debug=False, log=False):
     """Facial detection and real time processing credit goes to:
 
     https://www.pyimagesearch.com/2017/04/17/real-time-facial-landmark-detection-opencv-python-dlib/
@@ -34,7 +23,7 @@ def capture_action(cb):
     action_handler = ActionHandler()
 
     detector = dlib.get_frontal_face_detector()
-    predictor = dlib.shape_predictor(args["shape_predictor"])
+    predictor = dlib.shape_predictor(pred_path)
 
     camera = cv2.VideoCapture(0)
 
@@ -68,7 +57,7 @@ def capture_action(cb):
 
             perform, action = action_handler.get_next(eye_action, head_action)
 
-            if args["log"]:
+            if log:
                 display_decisions(frame, head_action, eye_action)
                 display_counters(frame, COUNTER_LOG)
 
@@ -76,11 +65,12 @@ def capture_action(cb):
                 COUNTER_LOG[action] += 1
                 cb(action)
 
-            if args["debug"]:
+            if debug:
                 cur_head.debug(frame)
                 cur_eyes.debug(frame)
 
-        cv2.imshow("Frame", frame)
+                cv2.imshow("Frame", frame)
+
         key = cv2.waitKey(1) & 0xFF
 
         if key == ord("q"):

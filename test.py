@@ -1,10 +1,20 @@
 import time
+import argparse
 
 from random import shuffle
 from action import HeadAction, success
 from capture import capture_action
 
 COMMANDS_LOG = "test_commands.txt"
+
+ap = argparse.ArgumentParser()
+ap.add_argument("-p", "--shape-predictor", required=True,
+                help="Path to facial landmark predictor")
+ap.add_argument("-d", "--debug", action="store_true", required=False,
+                help="Displays debugging information.")
+
+args = vars(ap.parse_args())
+
 
 def load_test():
     test_actions = [v for _, v in success.values() if v != HeadAction.UNZOOM]
@@ -31,7 +41,7 @@ def main():
     def test(action):
         print("============\n{}".format(action))
 
-    capture_action(test)
+    capture_action(args["shape_predictor"], test)
 
 if __name__ == "__main__":
     main()

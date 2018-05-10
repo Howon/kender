@@ -28,8 +28,6 @@ def display_counters(frame, counter_logs):
     h, w, _ = frame.shape
     align_x = int(w * 0.63)
     align_y = int(h * 0.3)
-    put_text(frame, "      Total", (align_x, 20))
-
     for i, (k, v) in enumerate(counter_logs.items()):
         text = "{}: {}".format(k, v).ljust(11).lower()
         put_text(frame, text, (align_x, 15 * (i + 1) + align_y))

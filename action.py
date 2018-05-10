@@ -33,7 +33,7 @@ success = {
     HeadAction.UP: ([HeadAction.CENTER, HeadAction.ZOOM], HeadAction.UP),
     HeadAction.DOWN: ([HeadAction.CENTER, HeadAction.ZOOM], HeadAction.DOWN),
     HeadAction.CENTER: ([HeadAction.ZOOM], HeadAction.ZOOM),
-    HeadAction.ZOOM: ([HeadAction.CENTER, HeadAction.DOWN], HeadAction.UNZOOM)
+    HeadAction.ZOOM: ([HeadAction.CENTER], HeadAction.UNZOOM)
 }
 
 h_type = type(HEAD_REST_STATE)
