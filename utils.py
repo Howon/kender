@@ -14,7 +14,7 @@ COUNTER_LOG = OrderedDict({
     HeadAction.DOWN: 0,
     HeadAction.CENTER: 0,
     HeadAction.ZOOM: 0,
-    HeadAction.NOT_ZOOM: 0,
+    HeadAction.UNZOOM: 0,
     EyeAction.BOTH_OPEN: 0,
     EyeAction.BOTH_BLINK: 0,
     EyeAction.BOTH_CLOSED: 0,
@@ -61,7 +61,7 @@ def y_dist(p1, p2):
 def shape_coord(shape, i):
     return shape[i][0], shape[i][1]
 
-def put_text(frame, text, loc, scale=0.5, color=(0, 0, 255), thickness=1):
+def put_text(frame, text, loc, scale=0.5, color=(255, 255, 255), thickness=1):
     cv2.putText(frame, text, loc, __DEF_FONT, scale, color, thickness)
 
 def resize_frame(frame):
