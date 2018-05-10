@@ -68,7 +68,7 @@ class MacroHandler():
         self.__macros[Macro.EXPOSE] = ["ctrl", "up"]
         self.__macros[Macro.MINIMIZE] = ["command", "down"]
         self.__macros[Macro.TAB_FORWARD] = ["command", "tab"]
-        self.__macros[Macro.TAB_BACKWARD] = ["command", "tab", "shift"]
+        self.__macros[Macro.TAB_BACKWARD] = ["command", "shiftleft", "tab"]
         self.__macros[Macro.COPY] = ["command", "c"]
         self.__macros[Macro.PASTE] = ["command", "v"]
 
@@ -78,5 +78,6 @@ class MacroHandler():
 
         hotkeys = self.__macros[macro]
 
-        pyautogui.hotkey(*hotkeys)
+        pyautogui.hotkey(*hotkeys, interval=0.1)
+
         time.sleep(_SLEEP_DURATION)
