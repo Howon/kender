@@ -2,9 +2,9 @@ import cv2
 import math
 from utils import *
 
-UP_THRESH = 0.2      # decrease
-DOWN_THRESH = 0.45    # increase
-ZOOM_THRESH = 0.5     # decrease
+UP_THRESH = 0.15      # Decrease to make it more sensitive.
+DOWN_THRESH = 0.5    # Decrease to make it more sensitive.
+ZOOM_THRESH = 0.5    # Decrease to make it more sensitive.
 
 """ Drawing functions """
 # draws the threshold line for left turn
@@ -45,7 +45,6 @@ class Head():
         self.__chin = shape_coord(shape, 8)
         self.__nose_tip = shape_coord(shape, 30)
         self.__head = midpoint(self.__left_ear, self.__right_ear)
-        self.__mid_eyes = midpoint(shape_coord(shape, 39), shape_coord(shape, 42))
 
         # Used in Down detection
         # Get the vertical distance between the center of the head and the nose tip
@@ -122,7 +121,6 @@ class Head():
         cv2.circle(frame, self.__nose_tip, 3, 255, -1)
         cv2.circle(frame, self.__head, 3, 255, -1)
         cv2.circle(frame, self.__chin, 3, 255, -1)
-        cv2.circle(frame, self.__mid_eyes, 3, 255, -1)
 
         # Left debugging
         frame = draw_left_line(frame, midpoint(self.__left_ear, self.__head))
@@ -131,14 +129,14 @@ class Head():
         # Down debugging.
         put_text(frame, "DOWN: " + str(self.__nc_ratio),
                  (align_x, align_y + 20))
-        cv2.line(frame, self.__head, self.__mid_eyes, (0, 100, 0), 2)
         cv2.line(frame, self.__head, self.__nose_tip, (255, 0, 255), 2)
 
         # Up debugging.
         put_text(frame, "UP: " + str(round(self.__nc_ratio, 2)),
                  (align_x, align_y + 40))
-        cv2.line(frame, self.__nose_tip, self.__chin, (255, 0, 255), 2)
+        cv2.line(frame, self.__nose_tip, self.__chin, (255, 0, 0), 2)
 
         # Zoom debugging.
         put_text(frame, "ZOOM: " + str(round(self.__head_zoom_ratio, 2)),
                  (align_x, align_y + 3 * 20))
+        cv2.line(frame, self.__left_ear, self.__right_ear, (255, 0, 255), 3)

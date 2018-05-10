@@ -2,12 +2,12 @@ import cv2
 from utils import *
 
 _EYE_HIST_THRESH = 0.02
-_EYE_DIFF_THRESH = 1.5
+_EYE_DIFF_THRESH = 1.7
 
 _EYE_RECT_MODIFIER = 7
 
 _LEAN_THRESH = 10
-_C_FLOOR = 80
+_C_FLOOR = 70
 _ELLIPSE_SCALE = 0.45
 _MASK_THICKNESS = 10
 _DILATE_KERNEL = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
@@ -178,7 +178,7 @@ class Eyes():
         if self.__l_disp is not None:
             l_disp_y, l_disp_x, _ = self.__l_disp.shape
 
-            if l_disp_x >= w:
+            if l_disp_x < w:
                 frame[0:l_disp_y, 0:l_disp_x] = self.__l_disp
 
         if self.__r_disp is not None:

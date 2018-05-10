@@ -67,8 +67,8 @@ class MacroHandler():
 
         self.__macros[Macro.EXPOSE] = ["ctrl", "up"]
         self.__macros[Macro.MINIMIZE] = ["command", "down"]
-        self.__macros[Macro.TAB_FORWARD] = ["command", "tab"]
-        self.__macros[Macro.TAB_BACKWARD] = ["command", "shiftleft", "tab"]
+        self.__macros[Macro.TAB_FORWARD] = ["ctrl", "right"]
+        self.__macros[Macro.TAB_BACKWARD] = ["ctrl", "left"]
         self.__macros[Macro.COPY] = ["command", "c"]
         self.__macros[Macro.PASTE] = ["command", "v"]
 
