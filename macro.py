@@ -6,7 +6,7 @@ import pyautogui
 from enum import Enum
 from action import HeadAction, EyeAction
 
-_SLEEP_DURATION = 0.3
+_SLEEP_DURATION = 0.2
 
 class Macro(Enum):
     MOVE_LEFT = 0
@@ -78,6 +78,5 @@ class MacroHandler():
 
         hotkeys = self.__macros[macro]
 
-        pyautogui.hotkey(*hotkeys, interval=0.1)
-
+        pyautogui.hotkey(*hotkeys)
         time.sleep(_SLEEP_DURATION)
